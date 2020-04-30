@@ -18,6 +18,28 @@
 
   </head>
   <body>
+    <h2>Iterations</h2>
+    <input type="text" id="iters" name="iters" value="50,000,000">
+    <small>(You can use commas as thousands seperators)</small>
+
+    <br><br><h2>Rewards:</h2>
+    <p>Wall Hit: </p>
+    <input type="number" step="0.01" id="rewardWall" name="rewardWall" value="-1">
+    <br><p>Body Hit: </p>
+    <input type="number" step="0.01" id="rewardBody" name="rewardBody" value="-1">
+    <br><p>Eat Apple: </p>
+    <input type="number" step="0.01" id="rewardApple" name="rewardApple" value="1">
+    <br><p>Otherwise: </p>
+    <input type="number" step="0.01" id="rewardNothing" name="rewardNothing" value="-.1">
+
+    <br><br><h2>Initial Modifiers:</h2>
+    <p>Learning Rate: </p>
+    <input type="number" step="0.01" id="lr" name="lr" value=".85">
+    <br><p>Discount Factor: </p>
+    <input type="number" step="0.01" id="df" name="df" value=".9">
+    <br><p>Epsilon: </p>
+    <input type="number" step="0.01" id="ep" name="ep" value=".5">
+
     <div class="centered1">
 
       <canvas id="canvas"></canvas>

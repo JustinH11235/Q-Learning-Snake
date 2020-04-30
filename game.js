@@ -13,16 +13,19 @@ var Game = (() => {
 
   var snake;
   var apple;
-  var nextApplePos;
   var score;
   var applesEaten;
   var deaths;
 
   var iterations;
+  var reward1;
+  var reward2;
+  var reward3;
+  var reward4;
 
   var reset = () => {
     snake = newSnake();
-    apple = pos();
+    apple = emptyPos();
     score = 0;
     deaths++;
     // QLearning.changeLR(.85 / iterations);
@@ -41,10 +44,33 @@ var Game = (() => {
 
   function pos(x, y) {
     if (x == undefined || y == undefined) {
-      x = randInt(0, width);
-      y = randInt(0, height);
+      return {x:randInt(0, width),y:randInt(0, height)};
     }
     return {x: x, y: y};
+  }
+
+  function emptySpot(x1, y1) {
+    for (let i = 0; i < snake.body.length; ++i) {
+      if (snake.body[i].x == x1 && snake.body[i].y == y1) {
+        return false;
+      }
+    }
+    if (apple != undefined) {
+      if (apple.x == x1 && apple.y == y1) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  function emptyPos() {
+    var curX;
+    var curY;
+    do {
+      curX = randInt(0, width);
+      curY = randInt(0, height);
+    } while (!emptySpot(curX, curY));
+    return {x:curX,y:curY};
   }
 
   function relPos(pos1, pos2) {
@@ -80,13 +106,13 @@ var Game = (() => {
     // Check if hit wall
     if (headX < 0 || headX >= width || headY < 0 || headY >= height) {
       reset();
-      return -1;
+      return reward1;
     }
     // Check if hit itself
     for (let i = 0; i < snake.body.length - 1; ++i) {
       if (headX == snake.body[i].x && headY == snake.body[i].y) {
         reset();
-        return -1;
+        return reward2;
       }
     }
 
@@ -96,17 +122,16 @@ var Game = (() => {
     if (apple.x == headX && apple.y == headY) {
       score++;
       renewApple();
-      return 1;
+      return reward3;
     } else {
       snake.body.shift();
-      return -.5;
+      return reward4;
     }
 
   }
 
   function renewApple() {
-    apple = nextApplePos;
-    nextApplePos = pos();
+    apple = emptyPos();
     applesEaten++;
   }
 
@@ -194,10 +219,6 @@ var Game = (() => {
     return snake.dir;
   }
 
-  // var getNextApplePos = () => {
-  //   code
-  // }
-
   var getScore = () => {
     return score;
   };
@@ -210,7 +231,7 @@ var Game = (() => {
     return parseInt(deaths);
   };
 
-  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, iterationsp) => {
+  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, iterationsp, r1p, r2p, r3p, r4p) => {
     console.log('Game init');
     learningAlgorithm = learningAlgorithmp;
     snakeSize = snakeSizep;
@@ -222,11 +243,16 @@ var Game = (() => {
     canvas.height = canvasHeight;
     snake = newSnake();
     score = 0;
-    apple = pos();
-    nextApplePos = pos();
+    apple = emptyPos();
     applesEaten = 0;
     deaths = 0;
     iterations = iterationsp;
+    reward1 = r1p;
+    reward2 = r2p;
+    reward3 = r3p;
+    reward4 = r4p;
+    console.log(iterations);
+    console.log(reward4);
   };
 
   var trainLoop = () => {
@@ -269,7 +295,6 @@ var Game = (() => {
     getApplePos: getApplePos,
     getTailPos: getTailPos,
     // getTailDir: getTailDir,
-    //getNextApplePos: getNextApplePos,
     getDistForward: getDistForward,
     getDistRight: getDistForward,
     getDistLeft: getDistLeft,

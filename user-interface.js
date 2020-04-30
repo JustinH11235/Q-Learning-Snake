@@ -4,10 +4,16 @@ var UI = (() => {
   var height = 10;
   var fps = 500;
   var learningAlgorithm = QLearning;
-  var iterations = 50000000;
-  var learningRate = .85;
-  var discountFactor = .9;
-  var epsilon = .5;
+
+  var iterations;
+  var r1;
+  var r2;
+  var r3;
+  var r4;
+
+  var learningRate;
+  var discountFactor;
+  var epsilon;
 
   const score = document.getElementById('score');
   const hscore = document.getElementById('highscore');
@@ -21,6 +27,15 @@ var UI = (() => {
   const fpsBtn = document.getElementById('fpsBtn');
   const reset = document.getElementById('reset');
 
+  const iters = document.getElementById('iters');
+  const rewardWall = document.getElementById('rewardWall');
+  const rewardBody = document.getElementById('rewardBody');
+  const rewardApple = document.getElementById('rewardApple');
+  const rewardNothing = document.getElementById('rewardNothing');
+  const lr = document.getElementById('lr');
+  const df = document.getElementById('df');
+  const ep = document.getElementById('ep');
+
   var testPaused = false;
   var timer;
   var highscore = 0;
@@ -28,7 +43,15 @@ var UI = (() => {
   train.addEventListener("click", () => {
     train.innerHTML = 'Training...';
     train.disabled = true;
-    Game.init(QLearning, snakeSize, width, height, iterations);
+    iterations = parseInt(iters.value.split(',').join(''));
+    r1 = parseFloat(rewardWall.value);
+    r2 = parseFloat(rewardBody.value);
+    r3 = parseFloat(rewardApple.value);
+    r4 = parseFloat(rewardNothing.value);
+    learningRate = parseFloat(lr.value);
+    discountFactor = parseFloat(df.value);
+    epsilon = parseFloat(ep.value);
+    Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4);
     learningAlgorithm.init(learningRate, discountFactor, epsilon);
     setTimeout(trainLoop, 5)
   });
@@ -37,7 +60,7 @@ var UI = (() => {
     test.disabled = true;
     pauseTest.disabled = false;
     highscore = 0;
-    Game.init(QLearning, snakeSize, width, height, iterations);
+    Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4);
     learningAlgorithm.changeLR(9999);
     learningAlgorithm.changeDF(9999);
     learningAlgorithm.changeEpsilon(9999);
@@ -64,14 +87,14 @@ var UI = (() => {
   });
 
   function trainLoop() {
-    for (let i = 0; i < iterations; i++) {
+    for (let i = 0; i < iterations; ++i) {
       Game.trainLoop();
       QLearning.changeLR(.85 / iterations);
       QLearning.changeDF(.9 / iterations);
       QLearning.changeEpsilon(.5 / iterations);
     }
     train.innerHTML  = 'Trained';
-    console.log('Printing QTable...');
+    //console.log('Printing QTable...');
     //QLearning.printQTable();
     test.disabled = false;
   }
