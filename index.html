@@ -1,0 +1,50 @@
+<html>
+  <head>
+    <html lang="en">
+    <meta charset="utf-8">
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="./styles.css" type="text/css">
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+    <!--<script src="/socket.io/socket.io.js"></script>-->
+
+    <title>Snake AI</title>
+
+    <!--<script src="/socket.io/socket.io.js"></script>-->
+
+  </head>
+  <body>
+    <div class="centered1">
+
+      <canvas id="canvas"></canvas>
+
+      <br><br>
+      <button class="btn btn-info" id="train">Train</button>
+      <button class="btn btn-primary" id="test" disabled>Test</button>
+      <br>
+      <button class="btn btn-primary" id="pauseTest" disabled>Pause Test</button>
+      <br>
+      <input type="number" id="newFPS" name="newFPS" min="1">
+      <button class="btn btn-success" id="fpsBtn">Set FPS</button>
+      <br>
+      <button class="btn btn-warning" id="reset">Reset</button>
+
+      <h2 id="score">Score: </h2>
+
+      <h2 id="highscore">Highscore: </h2>
+
+      <h2 id="ratio">Apples/Death: </h2>
+
+      <h2 id="deaths">Deaths: </h2>
+
+    </div>
+    <script type="text/javascript" src="./reinforcement-q-learning.js"></script>
+    <script type="text/javascript" src="./game.js"></script>
+    <script type="text/javascript" src="./user-interface.js"></script>
+
+  </body>
+</html>
