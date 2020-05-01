@@ -21,6 +21,7 @@ var UI = (() => {
   const deaths = document.getElementById('deaths');
 
   const download = document.getElementById('download');
+  const fileType = document.getElementById('fileType');
   const downloadBtn = document.getElementById('downloadBtn');
 
   const train = document.getElementById('train');
@@ -46,7 +47,7 @@ var UI = (() => {
   downloadBtn.addEventListener("click", () => {
     downloadBtn.disabled = true;
     var downloadName = download.value ? download.value : 'snakeQTable';
-    downloadObject(QLearning.getQTable(), downloadName + '.json');
+    downloadObject(QLearning.getQTable(), downloadName + fileType.value);
   });
 
   train.addEventListener("click", () => {
