@@ -291,7 +291,8 @@ var Game = (() => {
         'Score': getScore(),
         'Highscore': getHighscore(),
         'Apples per Death': (getDeaths() == 0 ? getApplesEaten() : getApplesEaten() / getDeaths()).toFixed(3),
-        'Deaths': getDeaths()
+        'Deaths': getDeaths(),
+        'Resets': UI.getNumResets()
       }
     };
   };

@@ -51,6 +51,7 @@ var UI = (() => {
 
   var testPaused = false;
   var timer;
+  var numResets = 0;
 
   qTableDownloadBtn.addEventListener("click", () => {
     var downloadName = qTableDownload.value ? qTableDownload.value : 'snakeQTable';
@@ -115,6 +116,7 @@ var UI = (() => {
 
   reset.addEventListener("click", () => {
     Game.reset();
+    numResets++;
   });
 
   function downloadObject(obj, filename) {
@@ -156,7 +158,7 @@ var UI = (() => {
     //   ratio.innerHTML = 'Apples/Death: ' + (Game.getApplesEaten() / Game.getDeaths()).toFixed(3);
     // }
     ratio.innerHTML = 'Apples/Death: ' + (Game.getDeaths() == 0 ? Game.getApplesEaten() + '.000' : (Game.getApplesEaten() / Game.getDeaths()).toFixed(3));
-    deaths.innerHTML = 'Deaths: ' + Game.getDeaths();
+    deaths.innerHTML = 'Deaths: ' + Game.getDeaths() + '&nbsp&nbsp&nbsp&nbspResets: ' + getNumResets();
 
     if (!testPaused) {
       timer = setTimeout(testLoop, 1000 / fps);
@@ -179,11 +181,16 @@ var UI = (() => {
     return epsilon;
   };
 
+  var getNumResets = () => {
+    return numResets;
+  };
+
   // Make public methods accessible to QLearning
   return {
     getInitialLearningRate: getInitialLearningRate,
     getInitialDiscountFactor: getInitialDiscountFactor,
-    getInitialEpsilon: getInitialEpsilon
+    getInitialEpsilon: getInitialEpsilon,
+    getNumResets: getNumResets
   };
 
 
