@@ -2,7 +2,7 @@ var UI = (() => {
   var snakeSize = 20;
   var width = 10;
   var height = 10;
-  var fps = 500;
+  var fps = 1000;
   var learningAlgorithm = QLearning;
 
   var iterations;
@@ -22,9 +22,12 @@ var UI = (() => {
   const ratio = document.getElementById('ratio');
   const deaths = document.getElementById('deaths');
 
-  const download = document.getElementById('download');
-  const fileType = document.getElementById('fileType');
-  const downloadBtn = document.getElementById('downloadBtn');
+  const qTableDownload = document.getElementById('qTableDownload');
+  const qTableExt = document.getElementById('qTableExt');
+  const qTableDownloadBtn = document.getElementById('qTableDownloadBtn');
+  const testReportDownload = document.getElementById('testReportDownload');
+  const testReportExt = document.getElementById('testReportExt');
+  const testReportDownloadBtn = document.getElementById('testReportDownloadBtn');
 
   const train = document.getElementById('train');
   const test = document.getElementById('test');
@@ -48,12 +51,15 @@ var UI = (() => {
 
   var testPaused = false;
   var timer;
-  var highscore = 0;
 
-  downloadBtn.addEventListener("click", () => {
-    downloadBtn.disabled = true;
-    var downloadName = download.value ? download.value : 'snakeQTable';
-    downloadObject(QLearning.getQTable(), downloadName + fileType.value);
+  qTableDownloadBtn.addEventListener("click", () => {
+    var downloadName = qTableDownload.value ? qTableDownload.value : 'snakeQTable';
+    downloadObject(QLearning.getQTable(), downloadName + qTableExt.value);
+  });
+
+  testReportDownloadBtn.addEventListener("click", () => {
+    var downloadName = testReportDownload.value ? testReportDownload.value : 'snakeTestReport';
+    downloadObject(Game.getReport(), downloadName + testReportExt.value);
   });
 
   train.addEventListener("click", () => {
@@ -79,8 +85,10 @@ var UI = (() => {
     test.disabled = true;
     pauseTest.disabled = false;
     highscore = 0;
-    width = parseInt(widt.value);
-    height = parseInt(heigh.value);
+    score.style.visibility = 'visible';
+    hscore.style.visibility = 'visible';
+    ratio.style.visibility = 'visible';
+    deaths.style.visibility = 'visible';
     Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4, allPs);
     learningAlgorithm.changeLR(9999);
     learningAlgorithm.changeDF(9999);
@@ -92,10 +100,12 @@ var UI = (() => {
     if (testPaused) {
       testPaused = false;
       pauseTest.innerHTML = "Pause Test"
+      testReportDownloadBtn.disabled = true;
       testLoop();
     } else {
       testPaused = true;
       pauseTest.innerHTML = "Unpause Test"
+      testReportDownloadBtn.disabled = false;
     }
   });
 
@@ -126,15 +136,10 @@ var UI = (() => {
       QLearning.changeEpsilon(.5 / iterations);
     }
     train.innerHTML  = 'Trained';
-    //QLearning.printQTable();
     test.disabled = false;
     fpsBtn.disabled = false;
     reset.disabled = false;
-    score.style.visibility = 'visible';
-    hscore.style.visibility = 'visible';
-    ratio.style.visibility = 'visible';
-    deaths.style.visibility = 'visible';
-    downloadBtn.disabled = false;
+    qTableDownloadBtn.disabled = false;
   }
 
   function testLoop() {
@@ -143,17 +148,14 @@ var UI = (() => {
 
     Game.testLoop();
 
-    let newScore = Game.getScore();
-    score.innerHTML = 'Score: ' + newScore;
-    if (newScore > highscore) {
-      highscore = newScore;
-      hscore.innerHTML = 'Highscore: ' + highscore;
-    }
-    if (Game.getDeaths() == 0) {
-      ratio.innerHTML = 'Apples/Death: ' + Game.getApplesEaten() + '.000';
-    } else {
-      ratio.innerHTML = 'Apples/Death: ' + (Game.getApplesEaten() / Game.getDeaths()).toFixed(3);
-    }
+    score.innerHTML = 'Score: ' + Game.getScore();
+    hscore.innerHTML = 'Highscore: ' + Game.getHighscore();
+    // if (Game.getDeaths() == 0) {
+    //   ratio.innerHTML = 'Apples/Death: ' + Game.getApplesEaten() + '.000';
+    // } else {
+    //   ratio.innerHTML = 'Apples/Death: ' + (Game.getApplesEaten() / Game.getDeaths()).toFixed(3);
+    // }
+    ratio.innerHTML = 'Apples/Death: ' + (Game.getDeaths() == 0 ? Game.getApplesEaten() + '.000' : (Game.getApplesEaten() / Game.getDeaths()).toFixed(3));
     deaths.innerHTML = 'Deaths: ' + Game.getDeaths();
 
     if (!testPaused) {
@@ -165,9 +167,23 @@ var UI = (() => {
     fps = f;
   }
 
+  var getInitialLearningRate = () => {
+    return learningRate;
+  };
+
+  var getInitialDiscountFactor = () => {
+    return discountFactor;
+  };
+
+  var getInitialEpsilon = () => {
+    return epsilon;
+  };
+
   // Make public methods accessible to QLearning
   return {
-
+    getInitialLearningRate: getInitialLearningRate,
+    getInitialDiscountFactor: getInitialDiscountFactor,
+    getInitialEpsilon: getInitialEpsilon
   };
 
 

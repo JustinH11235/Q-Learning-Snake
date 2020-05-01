@@ -14,6 +14,7 @@ var Game = (() => {
   var snake;
   var apple;
   var score;
+  var highscore;
   var applesEaten;
   var deaths;
 
@@ -122,7 +123,9 @@ var Game = (() => {
 
     // Check if apple
     if (apple.x == headX && apple.y == headY) {
-      score++;
+      if (++score > highscore) {
+        highscore = score;
+      }
       renewApple();
       return reward3;
     } else {
@@ -149,12 +152,13 @@ var Game = (() => {
   };
 
   function curState() {
-    let tempApple = relPos(getHeadPos(), getApplePos());
-    let tempTail = relPos(getHeadPos(), getTailPos());
+    let newHeadPos = getHeadPos();
+    let tempApple = relPos(newHeadPos, getApplePos());
     let state = tempApple.x + ',' + tempApple.y;
     let bodyPartsConsidered = allParts ? snake.body.length : 1;
     for (let i = 0; i < bodyPartsConsidered; ++i) {
-      state += ',' + snake.body[i].x + ',' + snake.body[i].y;
+      let newRelPos = relPos(newHeadPos, snake.body[i]);
+      state += ',' + newRelPos.x + ',' + newRelPos.y;
     }
     state += ',' + getDistForward() + ',' + getDir();
     return state;
@@ -237,12 +241,59 @@ var Game = (() => {
     return score;
   };
 
+  var getHighscore = () => {
+    return highscore;
+  };
+
   var getApplesEaten = () => {
     return parseInt(applesEaten);
   };
 
   var getDeaths = () => {
     return parseInt(deaths);
+  };
+
+  // let newScore = Game.getScore();
+  // score.innerHTML = 'Score: ' + newScore;
+  // if (newScore > highscore) {
+  //   highscore = newScore;
+  //   hscore.innerHTML = 'Highscore: ' + highscore;
+  // }
+  // if (Game.getDeaths() == 0) {
+  //   ratio.innerHTML = 'Apples/Death: ' + Game.getApplesEaten() + '.000';
+  // } else {
+  //   ratio.innerHTML = 'Apples/Death: ' + (Game.getApplesEaten() / Game.getDeaths()).toFixed(3);
+  // }
+  // deaths.innerHTML = 'Deaths: ' + Game.getDeaths();
+  //
+  // if (!testPaused) {
+  //   timer = setTimeout(testLoop, 1000 / fps);
+  // }
+
+  var getReport = () => {
+    return {
+      'SETTINGS': {
+        'Iterations': iterations, 'Rewards': {
+          'Wall Hit': reward1,
+          'Body Hit': reward2,
+          'Eat Apple': reward3,
+          'Otherwise': reward4
+        }, 'Initial Modifiers': {
+          'Learning Rate': UI.getInitialLearningRate(),
+          'Discount Factor': UI.getInitialDiscountFactor(),
+          'Epsilon': UI.getInitialEpsilon()
+        }, 'Board': {
+          'Width': width,
+          'Height': height
+        }, 'All Body Parts': allParts
+      },
+      'REPORT': {
+        'Score': getScore(),
+        'Highscore': getHighscore(),
+        'Apples per Death': (getDeaths() == 0 ? getApplesEaten() : getApplesEaten() / getDeaths()).toFixed(3),
+        'Deaths': getDeaths()
+      }
+    };
   };
 
   var init = (learningAlgorithmp, snakeSizep, widthp, heightp, iterationsp, r1p, r2p, r3p, r4p, allp) => {
@@ -257,6 +308,7 @@ var Game = (() => {
     canvas.height = canvasHeight;
     snake = newSnake();
     score = 0;
+    highscore = 0;
     apple = emptyPos();
     applesEaten = 0;
     deaths = 0;
@@ -271,17 +323,18 @@ var Game = (() => {
   var trainLoop = () => {
     let oldState = curState();
 
-    snake.dir = learningAlgorithm.updateDirection(oldState, snake.dir, snake.body.length);
+    let newDir = learningAlgorithm.updateDirection(oldState, snake.dir, snake.body.length);
+    snake.dir = newDir;
     let reward = moveSnake();
 
     let newState = curState();
-    learningAlgorithm.updateQTable(oldState, snake.dir, reward, newState, snake.body.length);
+    learningAlgorithm.updateQTable(oldState, newDir, reward, newState, snake.body.length);
   };
 
   var testLoop = () => {
     let oldState = curState();
     snake.dir = learningAlgorithm.updateDirection(oldState, snake.dir, snake.body.length);
-    QLearning.printActions(oldState);
+    //QLearning.printActions(oldState);
 
     moveSnake();
 
@@ -305,8 +358,11 @@ var Game = (() => {
     getDir: getDir,
 
     getScore: getScore,
+    getHighscore: getHighscore,
     getApplesEaten: getApplesEaten,
-    getDeaths: getDeaths
+    getDeaths: getDeaths,
+
+    getReport: getReport
   };
 
 })();

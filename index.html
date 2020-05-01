@@ -54,13 +54,21 @@
     <div class="centered1">
       <span style="color: #000000">
         QTable Download Filename:
-        <input type="text" id="download" name="download" placeholder="filename">
-        <select id="fileType">
+        <input type="text" id="qTableDownload" name="qTableDownload" placeholder="filename">
+        <select id="qTableExt">
           <option value=".json">.json</option>
           <option value=".txt">.txt</option>
         </select>
         &nbsp
-        <button class="btn btn-success" id="downloadBtn" disabled>Download</button><br><br>
+        <button class="btn btn-success" id="qTableDownloadBtn" disabled>Download</button><br><br>
+        Test Report Download Filename:
+        <input type="text" id="testReportDownload" name="testReportDownload" placeholder="filename">
+        <select id="testReportExt">
+          <option value=".json">.json</option>
+          <option value=".txt">.txt</option>
+        </select>
+        &nbsp
+        <button class="btn btn-success" id="testReportDownloadBtn" disabled>Download</button><br><br>
       </span>
 
       <canvas id="canvas"></canvas>
@@ -76,13 +84,13 @@
       <br>
       <button class="btn btn-warning" id="reset" disabled>Reset</button>
 
-      <h2 id="score" style="visibility:hidden">Score: </h2>
+      <h4 id="score" style="visibility:hidden">Score: </h4>
 
-      <h2 id="highscore" style="visibility:hidden">Highscore: </h2>
+      <h4 id="highscore" style="visibility:hidden">Highscore: </h4>
 
-      <h2 id="ratio" style="visibility:hidden">Apples/Death: </h2>
+      <h4 id="ratio" style="visibility:hidden">Apples/Death: </h4>
 
-      <h2 id="deaths" style="visibility:hidden">Deaths: </h2>
+      <h4 id="deaths" style="visibility:hidden">Deaths: </h4>
 
     </div>
     <script type="text/javascript" src="./reinforcement-q-learning.js"></script>
