@@ -15,6 +15,8 @@ var UI = (() => {
   var discountFactor;
   var epsilon;
 
+  var allPs;
+
   const score = document.getElementById('score');
   const hscore = document.getElementById('highscore');
   const ratio = document.getElementById('ratio');
@@ -42,6 +44,8 @@ var UI = (() => {
   const widt = document.getElementById('widt');
   const heigh = document.getElementById('heigh');
 
+  const aptrue = document.getElementById('true');
+
   var testPaused = false;
   var timer;
   var highscore = 0;
@@ -65,7 +69,8 @@ var UI = (() => {
     epsilon = parseFloat(ep.value);
     width = parseInt(widt.value);
     height = parseInt(heigh.value);
-    Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4);
+    allPs = aptrue.checked;
+    Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4, allPs);
     learningAlgorithm.init(learningRate, discountFactor, epsilon);
     setTimeout(trainLoop, 5)
   });
@@ -76,7 +81,7 @@ var UI = (() => {
     highscore = 0;
     width = parseInt(widt.value);
     height = parseInt(heigh.value);
-    Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4);
+    Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4, allPs);
     learningAlgorithm.changeLR(9999);
     learningAlgorithm.changeDF(9999);
     learningAlgorithm.changeEpsilon(9999);

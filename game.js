@@ -23,6 +23,8 @@ var Game = (() => {
   var reward3;
   var reward4;
 
+  var allParts;
+
   var reset = () => {
     snake = newSnake();
     apple = emptyPos();
@@ -146,6 +148,18 @@ var Game = (() => {
     ctx.fillRect(snakeSize * apple.x, snakeSize * apple.y, snakeSize, snakeSize);
   };
 
+  function curState() {
+    let tempApple = relPos(getHeadPos(), getApplePos());
+    let tempTail = relPos(getHeadPos(), getTailPos());
+    let state = tempApple.x + ',' + tempApple.y;
+    let bodyPartsConsidered = allParts ? snake.body.length : 1;
+    for (let i = 0; i < bodyPartsConsidered; ++i) {
+      state += ',' + snake.body[i].x + ',' + snake.body[i].y;
+    }
+    state += ',' + getDistForward() + ',' + getDir();
+    return state;
+  }
+
   var getHeadPos = () => {
     let x = snake.body[snake.body.length - 1].x;
     let y = snake.body[snake.body.length - 1].y;
@@ -231,7 +245,7 @@ var Game = (() => {
     return parseInt(deaths);
   };
 
-  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, iterationsp, r1p, r2p, r3p, r4p) => {
+  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, iterationsp, r1p, r2p, r3p, r4p, allp) => {
     console.log('Game init');
     learningAlgorithm = learningAlgorithmp;
     snakeSize = snakeSizep;
@@ -251,29 +265,21 @@ var Game = (() => {
     reward2 = r2p;
     reward3 = r3p;
     reward4 = r4p;
+    allParts = allp;
   };
 
   var trainLoop = () => {
-    let tempApple = relPos(getHeadPos(), getApplePos());
-    let tempTail = relPos(getHeadPos(), getTailPos());
-    let oldState = tempApple.x + ',' + tempApple.y + ',' + tempTail.x + ',' + tempTail.y + ',' + getDistForward() + ',' + getDir();
-    //let oldState = {apple: relPos({x:headX,y:headY}, apple), tail: relPos({x:headX,y:headY}, getTailPos()), dToWall: getDistForward()};
+    let oldState = curState();
 
-    let newDir = learningAlgorithm.updateDirection(oldState, snake.dir, snake.body.length);
-    snake.dir = newDir;
+    snake.dir = learningAlgorithm.updateDirection(oldState, snake.dir, snake.body.length);
     let reward = moveSnake();
 
-    let tempApple2 = relPos(getHeadPos(), getApplePos());
-    let tempTail2 = relPos(getHeadPos(), getTailPos());
-    let newState = tempApple2.x + ',' + tempApple2.y + ',' + tempTail2.x + ',' + tempTail2.y + ',' + getDistForward() + ',' + getDir();
-    learningAlgorithm.updateQTable(oldState, newDir, reward, newState, snake.body.length);
-    //learningAlgorithm.updateQTable(oldState, snake.dir, reward, {apple: relPos({x:headX,y:headY}, apple), tail: relPos({x:headX,y:headY}, getTailPos()), dToWall: getDistForward()});
+    let newState = curState();
+    learningAlgorithm.updateQTable(oldState, snake.dir, reward, newState, snake.body.length);
   };
 
   var testLoop = () => {
-    let tempApple = relPos(getHeadPos(), getApplePos());
-    let tempTail = relPos(getHeadPos(), getTailPos());
-    let oldState = tempApple.x + ',' + tempApple.y + ',' + tempTail.x + ',' + tempTail.y + ',' + getDistForward() + ',' + getDir();
+    let oldState = curState();
     snake.dir = learningAlgorithm.updateDirection(oldState, snake.dir, snake.body.length);
     QLearning.printActions(oldState);
 

@@ -26,10 +26,10 @@ var QLearning = (() => {
     }
   }
 
-  function newState(apple, tail, forward, dir) {
-    return apple.x + ',' + apple.y + ',' + tail.x + ',' + tail.y + ',' + forward + ',' + dir;
-    //return JSON.parse(JSON.stringify({apple: apple, tail: tail, dforward: dforward}));
-  }
+  // function newState(apple, tail, forward, dir) {
+  //   return apple.x + ',' + apple.y + ',' + tail.x + ',' + tail.y + ',' + forward + ',' + dir;
+  //   //return JSON.parse(JSON.stringify({apple: apple, tail: tail, dforward: dforward}));
+  // }
 
   function bestAction(state) {
     var actions = Object.entries(QTable[state]);
