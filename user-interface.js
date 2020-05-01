@@ -21,6 +21,7 @@ var UI = (() => {
   const deaths = document.getElementById('deaths');
 
   const download = document.getElementById('download');
+  const downloadBtn = document.getElementById('downloadBtn');
 
   const train = document.getElementById('train');
   const test = document.getElementById('test');
@@ -41,6 +42,12 @@ var UI = (() => {
   var testPaused = false;
   var timer;
   var highscore = 0;
+
+  downloadBtn.addEventListener("click", () => {
+    downloadBtn.disabled = true;
+    var downloadName = download.value ? download.value : 'snakeQTable';
+    downloadObject(QLearning.getQTable(), downloadName + '.json');
+  });
 
   train.addEventListener("click", () => {
     train.innerHTML = 'Training...';
@@ -109,8 +116,7 @@ var UI = (() => {
     train.innerHTML  = 'Trained';
     //QLearning.printQTable();
     test.disabled = false;
-
-    downloadObject(QLearning.getQTable(), download.value + '.json');
+    downloadBtn.disabled = false;
   }
 
   function testLoop() {
