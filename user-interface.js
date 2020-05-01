@@ -20,6 +20,8 @@ var UI = (() => {
   const ratio = document.getElementById('ratio');
   const deaths = document.getElementById('deaths');
 
+  const download = document.getElementById('download');
+
   const train = document.getElementById('train');
   const test = document.getElementById('test');
   const pauseTest = document.getElementById('pauseTest');
@@ -86,6 +88,17 @@ var UI = (() => {
     Game.reset();
   });
 
+  function downloadObject(obj, filename) {
+    var blob = new Blob([JSON.stringify(obj, null, 2)], {type: "application/json;charset=utf-8"}).slice(2,-1);
+    var url = URL.createObjectURL(blob);
+    var elem = document.createElement("a");
+    elem.href = url;
+    elem.download = filename;
+    document.body.appendChild(elem);
+    elem.click();
+    document.body.removeChild(elem);
+  }
+
   function trainLoop() {
     for (let i = 0; i < iterations; ++i) {
       Game.trainLoop();
@@ -94,9 +107,10 @@ var UI = (() => {
       QLearning.changeEpsilon(.5 / iterations);
     }
     train.innerHTML  = 'Trained';
-    //console.log('Printing QTable...');
     //QLearning.printQTable();
     test.disabled = false;
+
+    downloadObject(QLearning.getQTable(), download.value + '.json');
   }
 
   function testLoop() {

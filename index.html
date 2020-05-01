@@ -10,11 +10,8 @@
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
-    <!--<script src="/socket.io/socket.io.js"></script>-->
 
-    <title>Snake AI</title>
-
-    <!--<script src="/socket.io/socket.io.js"></script>-->
+    <title>Q-Learning Snake</title>
 
   </head>
   <body>
@@ -41,6 +38,10 @@
     <input type="number" step="0.01" id="ep" name="ep" value=".5">
 
     <div class="centered1">
+      <span style="color: #000000">
+        QTable JSON Download Filename:
+        <input type="text" id="download" name="download" placeholder="filename">.json<br><br>
+      </span>
 
       <canvas id="canvas"></canvas>
 
@@ -50,7 +51,7 @@
       <br>
       <button class="btn btn-primary" id="pauseTest" disabled>Pause Test</button>
       <br>
-      <input type="number" id="newFPS" name="newFPS" min="1">
+      <input type="number" id="newFPS" name="newFPS" min="1" value="500">
       <button class="btn btn-success" id="fpsBtn">Set FPS</button>
       <br>
       <button class="btn btn-warning" id="reset">Reset</button>

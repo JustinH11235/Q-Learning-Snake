@@ -117,11 +117,6 @@ var QLearning = (() => {
     //QTable[oldState][action] = QTable[oldState][action] + learningRate * (reward + discountFactor * bestAction(newState).reward  - QTable[oldState][action]);
   };
 
-  var printActions = (statep) => {
-    console.log(statep);
-    console.log(QTable[statep]);
-  };
-
   var updateDirection = (statep, oldDir, sizee) => {
     if (QTable[statep] == undefined) {
       if (sizee > 1) {
@@ -185,6 +180,15 @@ var QLearning = (() => {
     console.log();
   };
 
+  var getQTable = () => {
+    return QTable;
+  };
+
+  var printActions = (statep) => {
+    console.log(statep);
+    console.log(QTable[statep]);
+  };
+
   return {
     init: init,
     changeLR: changeLR,
@@ -194,6 +198,7 @@ var QLearning = (() => {
     updateQTable: updateQTable,
 
     printQTable: printQTable,
+    getQTable: getQTable,
 
     printActions: printActions
   }

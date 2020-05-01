@@ -251,8 +251,6 @@ var Game = (() => {
     reward2 = r2p;
     reward3 = r3p;
     reward4 = r4p;
-    console.log(iterations);
-    console.log(reward4);
   };
 
   var trainLoop = () => {
