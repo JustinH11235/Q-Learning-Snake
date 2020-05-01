@@ -39,6 +39,8 @@ var UI = (() => {
   const lr = document.getElementById('lr');
   const df = document.getElementById('df');
   const ep = document.getElementById('ep');
+  const widt = document.getElementById('widt');
+  const heigh = document.getElementById('heigh');
 
   var testPaused = false;
   var timer;
@@ -61,6 +63,8 @@ var UI = (() => {
     learningRate = parseFloat(lr.value);
     discountFactor = parseFloat(df.value);
     epsilon = parseFloat(ep.value);
+    width = parseInt(widt.value);
+    height = parseInt(heigh.value);
     Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4);
     learningAlgorithm.init(learningRate, discountFactor, epsilon);
     setTimeout(trainLoop, 5)
@@ -70,6 +74,8 @@ var UI = (() => {
     test.disabled = true;
     pauseTest.disabled = false;
     highscore = 0;
+    width = parseInt(widt.value);
+    height = parseInt(heigh.value);
     Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4);
     learningAlgorithm.changeLR(9999);
     learningAlgorithm.changeDF(9999);
@@ -117,6 +123,12 @@ var UI = (() => {
     train.innerHTML  = 'Trained';
     //QLearning.printQTable();
     test.disabled = false;
+    fpsBtn.disabled = false;
+    reset.disabled = false;
+    score.style.visibility = 'visible';
+    hscore.style.visibility = 'visible';
+    ratio.style.visibility = 'visible';
+    deaths.style.visibility = 'visible';
     downloadBtn.disabled = false;
   }
 
