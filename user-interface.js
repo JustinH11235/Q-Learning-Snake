@@ -15,7 +15,11 @@ var UI = (() => {
   var discountFactor;
   var epsilon;
 
-  var allPs;
+  var npm;
+  var npo;
+  var irap;
+  var ifdtw;
+  var idrctn;
 
   const score = document.getElementById('score');
   const hscore = document.getElementById('highscore');
@@ -49,8 +53,17 @@ var UI = (() => {
   const widt = document.getElementById('widt');
   const heigh = document.getElementById('heigh');
 
-  const aptrue = document.getElementById('true');
-  const apfalse = document.getElementById('false');
+  const nbpMain = document.getElementById('nbpMain');
+  const ortpMain = document.getElementById('ortpMain');
+  const arbpMain = document.getElementById('arbpMain');
+
+  const nbpOther = document.getElementById('nbpOther');
+  const ortpOther = document.getElementById('ortpOther');
+  const arbpOther = document.getElementById('arbpOther');
+
+  const rap = document.getElementById('rap');
+  const fdtw = document.getElementById('fdtw');
+  const drctn = document.getElementById('drctn');
 
   var testPaused = false;
   var timer;
@@ -82,8 +95,12 @@ var UI = (() => {
       height = parseInt(heigh.value);
       othersnaks = parseInt(othersnaks.value);
       appls = parseInt(appls.value);
-      allPs = aptrue.checked;
-      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, allPs);
+      npm = nbpMain.checked ? 0 : (ortpMain.checked ? 1 : 2);
+      npo = nbpOther.checked ? 0 : (ortpOther.checked ? 1 : 2);
+      irap = rap.checked;
+      ifdtw = fdtw.checked;
+      idrctn = drctn.checked;
+      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, npm, npo, irap, ifdtw, idrctn);
       learningAlgorithm.init({}, learningRate, discountFactor, epsilon);
       setTimeout(trainLoop, 5)
     } else {
@@ -113,9 +130,17 @@ var UI = (() => {
       height = heigh.value;
       othersnaks = parseInt(othersnaks.value);
       appls = parseInt(appls.value);
-      apfalse.checked = true;
-      allPs = aptrue.checked;
-      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, allPs);
+      ortpMain.checked = true;
+      nbpOther.checked = true;
+      rap.checked = true;
+      fdtw.checked = true;
+      drctn.checked = true;
+      npm = nbpMain.checked ? 0 : (ortpMain.checked ? 1 : 2);
+      npo = nbpOther.checked ? 0 : (ortpOther.checked ? 1 : 2);
+      irap = rap.checked;
+      ifdtw = fdtw.checked;
+      idrctn = drctn.checked;
+      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, npm, npo, irap, ifdtw, idrctn);
       addScript('./preloaded-q-table.json', () => {
         learningAlgorithm.init(preloadedQTable, learningRate, discountFactor, epsilon);
         train.innerHTML  = 'Trained';
@@ -136,7 +161,7 @@ var UI = (() => {
     hscore.style.visibility = 'visible';
     ratio.style.visibility = 'visible';
     deaths.style.visibility = 'visible';
-    Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, allPs);
+    Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, npm, npo, irap, ifdtw, idrctn);
     learningAlgorithm.changeLR(9999);
     learningAlgorithm.changeDF(9999);
     learningAlgorithm.changeEpsilon(9999);

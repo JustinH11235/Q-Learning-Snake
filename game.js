@@ -28,7 +28,11 @@ var Game = (() => {
   var reward3;
   var reward4;
 
-  var allParts;
+  var numPartsMain;
+  var numPartsOther;
+  var includeRelativeApplePos;
+  var includeForwardDistToWall;
+  var includeDirection;
 
   var reset = () => {
     snake = newSnake();
@@ -84,6 +88,20 @@ var Game = (() => {
       }
     }
     return -1;
+  }
+
+  function snakeEquals(s1, s2) {
+    if (s1.dir == s2.dir && s1.body.length == s2.body.length) {
+      for (let i = 0; i < s1.body.length; ++i) {
+        if (s1.body[i] != s2.body[i]) {
+          return false;
+        }
+      }
+    } else {
+      return false;
+    }
+
+    return true;
   }
 
   function renewOtherSnakes() {
@@ -319,15 +337,43 @@ var Game = (() => {
   };
 
   function curState(snakey) {
+    let state = '';
     let newHeadPos = getHeadPos(snakey.body);
-    let tempApple = relPos(newHeadPos, getNearestApplePos(newHeadPos));
-    let state = tempApple.x + ',' + tempApple.y;
-    let bodyPartsConsidered = allParts ? snakey.body.length : 1;
-    for (let i = 0; i < bodyPartsConsidered; ++i) {
+
+    if (includeRelativeApplePos) {
+      let tempApple = relPos(newHeadPos, getNearestApplePos(newHeadPos));
+      state += tempApple.x + ',' + tempApple.y;
+    }
+
+    let mainBodyPartsConsidered = numPartsMain == 2 ? snakey.body.length : numPartsMain;
+    for (let i = 0; i < mainBodyPartsConsidered; ++i) {
       let newRelPos = relPos(newHeadPos, snakey.body[i]);
       state += ',' + newRelPos.x + ',' + newRelPos.y;
     }
-    state += ',' + getDistForward(snakey) + ',' + snakey.dir;
+    if (!snakeEquals(snakey, snake)) {
+      let otherBodyPartsConsidered = numPartsOther == 2 ? snake.body.length : numPartsMain;
+      for (let i = 0; i < otherBodyPartsConsidered; ++i) {
+        let newRelPos = relPos(newHeadPos, snake.body[i]);
+        state += ',' + newRelPos.x + ',' + newRelPos.y;
+      }
+    }
+    for (let i = 0; i < otherSnakes.length; ++i) {
+      if (!snakeEquals(otherSnakes[i], snakey)) {
+        let otherBodyPartsConsidered = numPartsOther == 2 ? otherSnakes[i].body.length : numPartsMain;
+        for (let j = 0; j < otherBodyPartsConsidered; ++j) {
+          let newRelPos = relPos(newHeadPos, otherSnakes[i].body[j]);
+          state += ',' + newRelPos.x + ',' + newRelPos.y;
+        }
+      }
+    }
+
+    if (includeForwardDistToWall) {
+      state += ',' + getDistForward(snakey);
+    }
+    if (includeDirection) {
+      state += ',' + snakey.dir;
+    }
+
     return state;
   }
 
@@ -454,7 +500,7 @@ var Game = (() => {
     };
   };
 
-  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, snakssp, applssp, iterationsp, r1p, r2p, r3p, r4p, allp) => {
+  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, snakssp, applssp, iterationsp, r1p, r2p, r3p, r4p, npmp, npop, rapp, fdtwp, drctnp) => {
     console.log('Game init');
     learningAlgorithm = learningAlgorithmp;
     snakeSize = snakeSizep;
@@ -480,7 +526,16 @@ var Game = (() => {
     reward2 = r2p;
     reward3 = r3p;
     reward4 = r4p;
-    allParts = allp;
+    numPartsMain = npmp;
+    numPartsOther = npop;
+    includeRelativeApplePos = rapp;
+    includeForwardDistToWall = fdtwp;
+    includeDirection = drctnp;
+    // console.log(numPartsMain);
+    // console.log(numPartsOther);
+    // console.log(includeRelativeApplePos);
+    // console.log(includeForwardDistToWall);
+    // console.log(includeDirection);
   };
 
   var trainLoop = () => {
