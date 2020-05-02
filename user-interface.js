@@ -29,12 +29,14 @@ var UI = (() => {
   const testReportExt = document.getElementById('testReportExt');
   const testReportDownloadBtn = document.getElementById('testReportDownloadBtn');
 
+  const trainType = document.getElementById('trainType');
   const train = document.getElementById('train');
   const test = document.getElementById('test');
   const pauseTest = document.getElementById('pauseTest');
   const newFPS = document.getElementById('newFPS');
   const fpsBtn = document.getElementById('fpsBtn');
-  const reset = document.getElementById('reset');
+  const unstick = document.getElementById('unstick');
+  const resetTest = document.getElementById('resetTest');
 
   const iters = document.getElementById('iters');
   const rewardWall = document.getElementById('rewardWall');
@@ -48,38 +50,82 @@ var UI = (() => {
   const heigh = document.getElementById('heigh');
 
   const aptrue = document.getElementById('true');
+  const apfalse = document.getElementById('false');
 
   var testPaused = false;
   var timer;
-  var numResets = 0;
+  var numUnsticks = 0;
 
   qTableDownloadBtn.addEventListener("click", () => {
     var downloadName = qTableDownload.value ? qTableDownload.value : 'snakeQTable';
-    downloadObject(QLearning.getQTable(), downloadName + qTableExt.value);
+    downloadObject(QLearning.getQTable(), 'QTable ' + downloadName + qTableExt.value);
   });
 
   testReportDownloadBtn.addEventListener("click", () => {
     var downloadName = testReportDownload.value ? testReportDownload.value : 'snakeTestReport';
-    downloadObject(Game.getReport(), downloadName + testReportExt.value);
+    downloadObject(Game.getReport(), 'Report ' + downloadName + testReportExt.value);
   });
 
   train.addEventListener("click", () => {
-    train.innerHTML = 'Training...';
-    train.disabled = true;
-    iterations = parseInt(iters.value.split(',').join(''));
-    r1 = parseFloat(rewardWall.value);
-    r2 = parseFloat(rewardBody.value);
-    r3 = parseFloat(rewardApple.value);
-    r4 = parseFloat(rewardNothing.value);
-    learningRate = parseFloat(lr.value);
-    discountFactor = parseFloat(df.value);
-    epsilon = parseFloat(ep.value);
-    width = parseInt(widt.value);
-    height = parseInt(heigh.value);
-    allPs = aptrue.checked;
-    Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4, allPs);
-    learningAlgorithm.init(learningRate, discountFactor, epsilon);
-    setTimeout(trainLoop, 5)
+    if (trainType.value == 'custom') {
+      train.innerHTML = 'Training...';
+      train.disabled = true;
+      iterations = parseInt(iters.value.split(',').join(''));
+      r1 = parseFloat(rewardWall.value);
+      r2 = parseFloat(rewardBody.value);
+      r3 = parseFloat(rewardApple.value);
+      r4 = parseFloat(rewardNothing.value);
+      learningRate = parseFloat(lr.value);
+      discountFactor = parseFloat(df.value);
+      epsilon = parseFloat(ep.value);
+      width = parseInt(widt.value);
+      height = parseInt(heigh.value);
+      othersnaks = parseInt(othersnaks.value);
+      appls = parseInt(appls.value);
+      allPs = aptrue.checked;
+      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, allPs);
+      learningAlgorithm.init({}, learningRate, discountFactor, epsilon);
+      setTimeout(trainLoop, 5)
+    } else {
+      train.innerHTML = 'Training...';
+      train.disabled = true;
+      iters.value = '50,000,000';
+      iterations = parseInt(iters.value.split(',').join(''));
+      rewardWall.value = -1;
+      rewardBody.value = -1;
+      rewardApple.value = 1;
+      rewardNothing.value = -.075;
+      r1 = parseFloat(rewardWall.value);
+      r2 = parseFloat(rewardBody.value);
+      r3 = parseFloat(rewardApple.value);
+      r4 = parseFloat(rewardNothing.value);
+      lr.value = .85;
+      df.value = .9;
+      ep.value = .5;
+      learningRate = lr.value;
+      discountFactor = df.value;
+      epsilon = ep.value;
+      widt.value = 10;
+      heigh.value = 10;
+      othersnaks.value = 0;
+      appls.value = 1;
+      width = widt.value;
+      height = heigh.value;
+      othersnaks = parseInt(othersnaks.value);
+      appls = parseInt(appls.value);
+      apfalse.checked = true;
+      allPs = aptrue.checked;
+      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, allPs);
+      addScript('./preloaded-q-table.json', () => {
+        learningAlgorithm.init(preloadedQTable, learningRate, discountFactor, epsilon);
+        train.innerHTML  = 'Trained';
+        test.disabled = false;
+        fpsBtn.disabled = false;
+        unstick.disabled = false;
+        resetTest.disabled = false;
+        qTableDownloadBtn.disabled = false;
+      });
+    }
   });
 
   test.addEventListener("click", () => {
@@ -90,7 +136,7 @@ var UI = (() => {
     hscore.style.visibility = 'visible';
     ratio.style.visibility = 'visible';
     deaths.style.visibility = 'visible';
-    Game.init(QLearning, snakeSize, width, height, iterations, r1, r2, r3, r4, allPs);
+    Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, allPs);
     learningAlgorithm.changeLR(9999);
     learningAlgorithm.changeDF(9999);
     learningAlgorithm.changeEpsilon(9999);
@@ -114,9 +160,14 @@ var UI = (() => {
     setFPS(newFPS.value);
   });
 
-  reset.addEventListener("click", () => {
+  unstick.addEventListener("click", () => {
     Game.reset();
-    numResets++;
+    numUnsticks++;
+  });
+
+  resetTest.addEventListener("click", () => {
+    Game.resetTest();
+    numUnsticks = 0;
   });
 
   function downloadObject(obj, filename) {
@@ -130,6 +181,23 @@ var UI = (() => {
     document.body.removeChild(elem);
   }
 
+  // Include script file
+  function addScript(filename, callback) {
+    var head = document.getElementsByTagName('head')[0];
+
+    var script = document.createElement('script');
+    script.src = filename;
+    script.type = 'text/javascript';
+
+    function scriptCallback() {
+      callback();
+      script.removeEventListener("load", scriptCallback);
+    }
+
+    head.append(script);
+    script.addEventListener('load', scriptCallback);
+  }
+
   function trainLoop() {
     for (let i = 0; i < iterations; ++i) {
       Game.trainLoop();
@@ -140,7 +208,8 @@ var UI = (() => {
     train.innerHTML  = 'Trained';
     test.disabled = false;
     fpsBtn.disabled = false;
-    reset.disabled = false;
+    unstick.disabled = false;
+    resetTest.disabled = false;
     qTableDownloadBtn.disabled = false;
   }
 
@@ -152,13 +221,8 @@ var UI = (() => {
 
     score.innerHTML = 'Score: ' + Game.getScore();
     hscore.innerHTML = 'Highscore: ' + Game.getHighscore();
-    // if (Game.getDeaths() == 0) {
-    //   ratio.innerHTML = 'Apples/Death: ' + Game.getApplesEaten() + '.000';
-    // } else {
-    //   ratio.innerHTML = 'Apples/Death: ' + (Game.getApplesEaten() / Game.getDeaths()).toFixed(3);
-    // }
     ratio.innerHTML = 'Apples/Death: ' + (Game.getDeaths() == 0 ? Game.getApplesEaten() + '.000' : (Game.getApplesEaten() / Game.getDeaths()).toFixed(3));
-    deaths.innerHTML = 'Deaths: ' + Game.getDeaths() + '&nbsp&nbsp&nbsp&nbspResets: ' + getNumResets();
+    deaths.innerHTML = 'Deaths: ' + Game.getDeaths() + '&nbsp&nbsp&nbsp&nbspUnsticks: ' + getNumUnsticks();
 
     if (!testPaused) {
       timer = setTimeout(testLoop, 1000 / fps);
@@ -181,8 +245,8 @@ var UI = (() => {
     return epsilon;
   };
 
-  var getNumResets = () => {
-    return numResets;
+  var getNumUnsticks = () => {
+    return numUnsticks;
   };
 
   // Make public methods accessible to QLearning
@@ -190,7 +254,7 @@ var UI = (() => {
     getInitialLearningRate: getInitialLearningRate,
     getInitialDiscountFactor: getInitialDiscountFactor,
     getInitialEpsilon: getInitialEpsilon,
-    getNumResets: getNumResets
+    getNumUnsticks: getNumUnsticks
   };
 
 

@@ -54,9 +54,9 @@ var QLearning = (() => {
     return JSON.parse(JSON.stringify({action: bestAction, reward: bestReward}));
   }
 
-  var init = (lR, dF, e) => {
+  var init = (qtab, lR, dF, e) => {
     //console.log('QLearning init');
-    QTable = {};
+    QTable = qtab;
     learningRate = lR;
     discountFactor = dF;
     epsilon = e;

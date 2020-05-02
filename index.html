@@ -15,33 +15,37 @@
 
   </head>
   <body>
-    <h4>Iterations</h4>
+    <h4>Iterations:</h4>
     <input type="text" id="iters" name="iters" value="50,000,000">
     <small>(Commas are ignored)</small>
 
     <br><h4>Rewards:</h4>
-    <p>Wall Hit: </p>
+    <p>Wall Hit:</p>
     <input type="number" step="0.01" id="rewardWall" name="rewardWall" value="-1">
-    <br><p>Body Hit: </p>
+    <br><p>Body Hit:</p>
     <input type="number" step="0.01" id="rewardBody" name="rewardBody" value="-1">
-    <br><p>Eat Apple: </p>
+    <br><p>Eat Apple:</p>
     <input type="number" step="0.01" id="rewardApple" name="rewardApple" value="1">
-    <br><p>Otherwise: </p>
+    <br><p>Otherwise:</p>
     <input type="number" step="0.01" id="rewardNothing" name="rewardNothing" value="-.1">
 
     <br><h4>Initial Modifiers:</h4>
-    <p>Learning Rate: </p>
+    <p>Learning Rate:</p>
     <input type="number" step="0.01" id="lr" name="lr" value=".85">
-    <br><p>Discount Factor: </p>
+    <br><p>Discount Factor:</p>
     <input type="number" step="0.01" id="df" name="df" value=".9">
-    <br><p>Epsilon: </p>
+    <br><p>Epsilon:</p>
     <input type="number" step="0.01" id="ep" name="ep" value=".5">
 
-    <br><h4>Board:</h4>
+    <br><h4>Game:</h4>
     <p>Width: </p>
     <input type="number" id="widt" name="widt" value="10">
-    <p>Height: </p>
+    <p>Height:</p>
     <input type="number" id="heigh" name="heigh" value="10">
+    <p>Other Snakes: </p>
+    <input type="number" id="othersnaks" name="othersnaks" value="0">
+    <p>Apples: </p>
+    <input type="number" id="appls" name="appls" value="1">
 
     <br><h4>All Body Parts:</h4>
     <form>
@@ -74,6 +78,10 @@
       <canvas id="canvas"></canvas>
 
       <br><br>
+      <select id="trainType">
+        <option value="custom">Custom</option>
+        <option value="preloaded">Preloaded</option>
+      </select>
       <button class="btn btn-info" id="train">Train</button>
       <button class="btn btn-primary" id="test" disabled>Test</button>
       <br>
@@ -82,7 +90,8 @@
       <input type="number" id="newFPS" name="newFPS" min="1" value="500">
       <button class="btn btn-success" id="fpsBtn" disabled>Set FPS</button>
       <br>
-      <button class="btn btn-warning" id="reset" disabled>Reset</button>
+      <button class="btn btn-warning" id="unstick" disabled>Unstick</button>
+      <button class="btn btn-warning" id="resetTest" disabled>Reset Test</button>
 
       <h4 id="score" style="visibility:hidden">Score: </h4>
 

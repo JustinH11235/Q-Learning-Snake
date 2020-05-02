@@ -4,6 +4,7 @@ var Game = (() => {
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
   const SNAKE_COLOR = '#00FF00';
+  const OTHER_SNAKE_COLOR = '#0000FF';
   const APPLE_COLOR = '#FF0000';
   var snakeSize;
   var width;
@@ -12,7 +13,10 @@ var Game = (() => {
   var canvasHeight;
 
   var snake;
-  var apple;
+  var otherSnakes;
+  var numOtherSnakes;
+  var apples;
+  var numApples;
   var score;
   var highscore;
   var applesEaten;
@@ -28,12 +32,22 @@ var Game = (() => {
 
   var reset = () => {
     snake = newSnake();
-    apple = emptyPos();
+    otherSnakes = [];
+    renewOtherSnakes();
+    apples = [];
+    renewApples();
     score = 0;
     deaths++;
     // QLearning.changeLR(.85 / iterations);
     // QLearning.changeDF(.9 / iterations);
     // QLearning.changeEpsilon(.5 / iterations);
+  };
+
+  var resetTest = () => {
+    reset();
+    highscore = 0;
+    applesEaten = 0;
+    deaths = 0;
   };
 
   // Clears canvas
@@ -45,6 +59,49 @@ var Game = (() => {
     return start + Math.floor(Math.random() * (end - start));
   }
 
+  function posIndexOf(arr, pos) {
+    for (let i = 0; i < arr.length; ++i) {
+      if (pos.x == arr[i].x && pos.y == arr[i].y) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  function snakeIndexOf(arr, asnake) {
+    for (let i = 0; i < arr.length; i++) {
+      if (asnake.dir == arr[i].dir && asnake.body.length == arr[i].body.length) {
+        let foundit = true;
+        for (let j = 0; j < asnake.body.length; ++j) {
+          if (!(asnake.body[j].x == arr[i].body[j].x && asnake.body[j].y == arr[i].body[j].y)) {
+            foundit = false;
+            break;
+          }
+        }
+        if (foundit) {
+          return i;
+        }
+      }
+    }
+    return -1;
+  }
+
+  function renewOtherSnakes() {
+    if (otherSnakes.length < numOtherSnakes) {
+      for (let i = 0; i < numOtherSnakes - otherSnakes.length; ++i) {
+        otherSnakes.push(newSnake());
+      }
+    }
+  }
+
+  function renewApples() {
+    if (apples.length < numApples) {
+      for (let i = 0; i < numApples - apples.length;) {
+        apples.push(emptyPos())
+      }
+    }
+  }
+
   function pos(x, y) {
     if (x == undefined || y == undefined) {
       return {x:randInt(0, width),y:randInt(0, height)};
@@ -53,16 +110,32 @@ var Game = (() => {
   }
 
   function emptySpot(x1, y1) {
-    for (let i = 0; i < snake.body.length; ++i) {
-      if (snake.body[i].x == x1 && snake.body[i].y == y1) {
-        return false;
+    if (snake != undefined) {
+      for (let i = 0; i < snake.body.length; ++i) {
+        if (snake.body[i].x == x1 && snake.body[i].y == y1) {
+          return false;
+        }
       }
     }
-    if (apple != undefined) {
-      if (apple.x == x1 && apple.y == y1) {
-        return false;
+
+    if (otherSnakes != undefined) {
+      for (let i = 0; i < otherSnakes.length; ++i) {
+        for (let j = 0; j < otherSnakes[i].body.length; ++j) {
+          if (otherSnakes[i].body[j].x == x1 && otherSnakes[i].body[j].y == y1) {
+            return false;
+          }
+        }
       }
     }
+
+    if (apples != undefined) {
+      for (let i = 0; i < apples.length; ++i) {
+        if (apples[i].x == x1 && apples[i].y == y1) {
+          return false;
+        }
+      }
+    }
+
     return true;
   }
 
@@ -82,12 +155,13 @@ var Game = (() => {
 
   function newSnake() {
     return {
-      body: [pos()],
+      body: [emptyPos()],//PROBLEM?
       dir: 'right'
     }
   }
 
   function moveSnake() {
+    //console.log('SNAKE MOVE');
     switch (snake.dir) {
       case 'right':
         snake.body.push(pos(snake.body[snake.body.length - 1].x + 1, snake.body[snake.body.length - 1].y));
@@ -108,36 +182,121 @@ var Game = (() => {
     let headY = snake.body[snake.body.length - 1].y;
     // Check if hit wall
     if (headX < 0 || headX >= width || headY < 0 || headY >= height) {
+      //console.log('Hit wall');
       reset();
       return reward1;
     }
     // Check if hit itself
     for (let i = 0; i < snake.body.length - 1; ++i) {
       if (headX == snake.body[i].x && headY == snake.body[i].y) {
+        //console.log('Hit itself');
         reset();
         return reward2;
+      }
+    }
+    // Check if hit other snakes
+    for (let i = 0; i < otherSnakes.length; ++i) {
+      for (let j = 0; j < otherSnakes[i].body.length; ++j) {
+        if (headX == otherSnakes[i].body[j].x && headY == otherSnakes[i].body[j].y) {
+          //console.log('hit other snake');
+          reset();
+          return reward2;
+        }
       }
     }
 
     // Snake is legal
 
     // Check if apple
-    if (apple.x == headX && apple.y == headY) {
-      if (++score > highscore) {
-        highscore = score;
+    for (let i = 0; i < apples.length; ++i) {
+      if (apples[i].x == headX && apples[i].y == headY) {
+        if (++score > highscore) {
+          highscore = score;
+        }
+        apples.splice(posIndexOf(apples, snake.body[snake.body.length - 1]), 1);
+        applesEaten++;
+        renewApples();
+        //console.log('ate apple');
+        return reward3;
       }
-      renewApple();
-      return reward3;
-    } else {
-      snake.body.shift();
-      return reward4;
     }
+    //console.log('nothing happened');
+    snake.body.shift();
+    return reward4;
 
   }
 
-  function renewApple() {
-    apple = emptyPos();
-    applesEaten++;
+  function moveOtherSnake(thisSnake) {
+    //console.log('OTHER SNAKE MOVE');
+    switch (thisSnake.dir) {
+      case 'right':
+        thisSnake.body.push(pos(thisSnake.body[thisSnake.body.length - 1].x + 1, thisSnake.body[thisSnake.body.length - 1].y));
+        break;
+      case 'left':
+        thisSnake.body.push(pos(thisSnake.body[thisSnake.body.length - 1].x - 1, thisSnake.body[thisSnake.body.length - 1].y));
+        break;
+      case 'down':
+        thisSnake.body.push(pos(thisSnake.body[thisSnake.body.length - 1].x, thisSnake.body[thisSnake.body.length - 1].y + 1));
+        break;
+      case 'up':
+        thisSnake.body.push(pos(thisSnake.body[thisSnake.body.length - 1].x, thisSnake.body[thisSnake.body.length - 1].y - 1));
+        break;
+      default:
+        break;
+    }
+    let headX = thisSnake.body[thisSnake.body.length - 1].x;
+    let headY = thisSnake.body[thisSnake.body.length - 1].y;
+    // Check if hit wall
+    if (headX < 0 || headX >= width || headY < 0 || headY >= height) {
+      otherSnakes.splice(snakeIndexOf(otherSnakes, thisSnake), 1);
+      //console.log('hit wall');
+      return 'rem';
+    }
+    // Check if hit itself
+    for (let i = 0; i < thisSnake.body.length - 1; ++i) {
+      if (headX == thisSnake.body[i].x && headY == thisSnake.body[i].y) {
+        otherSnakes.splice(snakeIndexOf(otherSnakes, thisSnake), 1);
+        //console.log('hit itself');
+        return 'rem';
+      }
+    }
+
+    // Check if hit other snakes
+    for (let i = 0; i < otherSnakes.length; ++i) {
+      for (let j = 0; j < otherSnakes[i].body.length; ++j) {
+        if (otherSnakes[i] != thisSnake && headX == otherSnakes[i].body[j].x && headY == otherSnakes[i].body[j].y) {
+          otherSnakes.splice(snakeIndexOf(otherSnakes, thisSnake), 1);
+          //console.log('hit other snake');
+          return 'rem';
+        }
+      }
+    }
+
+    // Check if hit main snake
+    for (let i = 0; i < snake.body.length; ++i) {
+      if (headX == snake.body[i].x && headY == snake.body[i].y) {
+        otherSnakes.splice(snakeIndexOf(otherSnakes, thisSnake), 1);
+        //console.log('hit main snake');
+        return 'rem';
+      }
+    }
+
+    // Snake is legal
+
+    // Check if apple
+    for (let i = 0; i < apples.length; ++i) {
+      if (apples[i].x == headX && apples[i].y == headY) {
+        apples.splice(posIndexOf(apples, thisSnake.body[thisSnake.body.length - 1]), 1);
+        //posSplice(apples, );
+        renewApples();
+        //console.log('ate apple');
+        return;
+      }
+    }
+    //console.log('nothing happened');
+    thisSnake.body.shift();
+    return;
+
   }
 
   // Renders snake bodies and apples
@@ -147,45 +306,59 @@ var Game = (() => {
     for (let i = 0; i < snake.body.length; ++i) {
       ctx.fillRect(snakeSize * snake.body[i].x, snakeSize * snake.body[i].y, snakeSize, snakeSize);
     }
+    ctx.fillStyle = OTHER_SNAKE_COLOR;
+    for (let i = 0; i < otherSnakes.length; ++i) {
+      for (let j = 0; j < otherSnakes[i].body.length; ++j) {
+        ctx.fillRect(snakeSize * otherSnakes[i].body[j].x, snakeSize * otherSnakes[i].body[j].y, snakeSize, snakeSize);
+      }
+    }
     ctx.fillStyle = APPLE_COLOR;
-    ctx.fillRect(snakeSize * apple.x, snakeSize * apple.y, snakeSize, snakeSize);
+    for (let i = 0; i < apples.length; ++i) {
+      ctx.fillRect(snakeSize * apples[i].x, snakeSize * apples[i].y, snakeSize, snakeSize);
+    }
   };
 
-  function curState() {
-    let newHeadPos = getHeadPos();
-    let tempApple = relPos(newHeadPos, getApplePos());
+  function curState(snakey) {
+    let newHeadPos = getHeadPos(snakey.body);
+    let tempApple = relPos(newHeadPos, getNearestApplePos(newHeadPos));
     let state = tempApple.x + ',' + tempApple.y;
-    let bodyPartsConsidered = allParts ? snake.body.length : 1;
+    let bodyPartsConsidered = allParts ? snakey.body.length : 1;
     for (let i = 0; i < bodyPartsConsidered; ++i) {
-      let newRelPos = relPos(newHeadPos, snake.body[i]);
+      let newRelPos = relPos(newHeadPos, snakey.body[i]);
       state += ',' + newRelPos.x + ',' + newRelPos.y;
     }
-    state += ',' + getDistForward() + ',' + getDir();
+    state += ',' + getDistForward(snakey) + ',' + snakey.dir;
     return state;
   }
 
-  var getHeadPos = () => {
-    let x = snake.body[snake.body.length - 1].x;
-    let y = snake.body[snake.body.length - 1].y;
+  var getHeadPos = (snakeBody) => {
+    let x = snakeBody[snakeBody.length - 1].x;
+    let y = snakeBody[snakeBody.length - 1].y;
     return pos(x, y);
   };
 
-  var getApplePos = () => {
-    let x = apple.x;
-    let y = apple.y;
+  var getNearestApplePos = (snakeHeadPos) => {
+    let headX = snakeHeadPos.x;
+    let headY = snakeHeadPos.y;
+    let x = apples[0].x;
+    let y = apples[0].y;
+    let closestDist = Math.abs(x - headX) + Math.abs(y - headY);
+    for (let i = 0; i < apples.length; ++i) {
+      let x2 = apples[i].x;
+      let y2 = apples[i].y;
+      if (Math.abs(x2 - headX) + Math.abs(y2 - headY) < closestDist) {
+        x = x2;
+        y = y2;
+        closestDist = Math.abs(x2 - headX) + Math.abs(y2 - headY);
+      }
+    }
     return pos(x, y);
   };
 
-  var getTailPos = () => {
-    let x = snake.body[0].x;
-    let y = snake.body[0].y;
-    return pos(x, y);
-  }
-
-  var getDistForward = () => {
-    let headx = snake.body[snake.body.length - 1].x;
-    let heady = snake.body[snake.body.length - 1].y;
-    switch (snake.dir) {
+  var getDistForward = (snakey) => {
+    let headx = snakey.body[snakey.body.length - 1].x;
+    let heady = snakey.body[snakey.body.length - 1].y;
+    switch (snakey.dir) {
       case 'right':
         return width - headx;
       case 'left':
@@ -199,42 +372,42 @@ var Game = (() => {
     }
   }
 
-  var getDistRight = () => {
-    let headx = snake.body[snake.body.length - 1].x;
-    let heady = snake.body[snake.body.length - 1].y;
-    switch (snake.dir) {
-      case 'right':
-        return height - heady;
-      case 'left':
-        return heady;
-      case 'down':
-        return headx;
-      case 'up':
-        return width - headx;
-      default:
-        return;
-    }
-  }
+  // var getDistRight = () => {
+  //   let headx = snake.body[snake.body.length - 1].x;
+  //   let heady = snake.body[snake.body.length - 1].y;
+  //   switch (snake.dir) {
+  //     case 'right':
+  //       return height - heady;
+  //     case 'left':
+  //       return heady;
+  //     case 'down':
+  //       return headx;
+  //     case 'up':
+  //       return width - headx;
+  //     default:
+  //       return;
+  //   }
+  // }
+  //
+  // var getDistLeft = () => {
+  //   let headx = snake.body[snake.body.length - 1].x;
+  //   let heady = snake.body[snake.body.length - 1].y;
+  //   switch (snake.dir) {
+  //     case 'right':
+  //       return heady;
+  //     case 'left':
+  //       return height - heady;
+  //     case 'down':
+  //       return width - headx;
+  //     case 'up':
+  //       return headx;
+  //     default:
+  //       return;
+  //   }
+  // }
 
-  var getDistLeft = () => {
-    let headx = snake.body[snake.body.length - 1].x;
-    let heady = snake.body[snake.body.length - 1].y;
-    switch (snake.dir) {
-      case 'right':
-        return heady;
-      case 'left':
-        return height - heady;
-      case 'down':
-        return width - headx;
-      case 'up':
-        return headx;
-      default:
-        return;
-    }
-  }
-
-  var getDir = () => {
-    return snake.dir;
+  var getDir = (snakey) => {
+    return snakey.dir;
   }
 
   var getScore = () => {
@@ -253,23 +426,6 @@ var Game = (() => {
     return parseInt(deaths);
   };
 
-  // let newScore = Game.getScore();
-  // score.innerHTML = 'Score: ' + newScore;
-  // if (newScore > highscore) {
-  //   highscore = newScore;
-  //   hscore.innerHTML = 'Highscore: ' + highscore;
-  // }
-  // if (Game.getDeaths() == 0) {
-  //   ratio.innerHTML = 'Apples/Death: ' + Game.getApplesEaten() + '.000';
-  // } else {
-  //   ratio.innerHTML = 'Apples/Death: ' + (Game.getApplesEaten() / Game.getDeaths()).toFixed(3);
-  // }
-  // deaths.innerHTML = 'Deaths: ' + Game.getDeaths();
-  //
-  // if (!testPaused) {
-  //   timer = setTimeout(testLoop, 1000 / fps);
-  // }
-
   var getReport = () => {
     return {
       'SETTINGS': {
@@ -282,35 +438,41 @@ var Game = (() => {
           'Learning Rate': UI.getInitialLearningRate(),
           'Discount Factor': UI.getInitialDiscountFactor(),
           'Epsilon': UI.getInitialEpsilon()
-        }, 'Board': {
+        }, 'Game': {
           'Width': width,
-          'Height': height
+          'Height': height,
+          'Other Snakes': numOtherSnakes,
+          'Apples': numApples
         }, 'All Body Parts': allParts
       },
       'REPORT': {
-        'Score': getScore(),
         'Highscore': getHighscore(),
         'Apples per Death': (getDeaths() == 0 ? getApplesEaten() : getApplesEaten() / getDeaths()).toFixed(3),
         'Deaths': getDeaths(),
-        'Resets': UI.getNumResets()
+        'Unsticks': UI.getNumUnsticks()
       }
     };
   };
 
-  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, iterationsp, r1p, r2p, r3p, r4p, allp) => {
+  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, snakssp, applssp, iterationsp, r1p, r2p, r3p, r4p, allp) => {
     console.log('Game init');
     learningAlgorithm = learningAlgorithmp;
     snakeSize = snakeSizep;
     width = widthp;
     height = heightp;
+    snake = newSnake();
+    numOtherSnakes = snakssp;
+    otherSnakes = [];
+    renewOtherSnakes();
+    numApples = applssp;
+    apples = [];
+    renewApples();
     canvasWidth = width * snakeSize;
     canvasHeight = height * snakeSize;
     canvas.width = canvasWidth;
     canvas.height = canvasHeight;
-    snake = newSnake();
     score = 0;
     highscore = 0;
-    apple = emptyPos();
     applesEaten = 0;
     deaths = 0;
     iterations = iterationsp;
@@ -322,24 +484,43 @@ var Game = (() => {
   };
 
   var trainLoop = () => {
-    let oldState = curState();
+    let oldState = curState(snake);
 
     let newDir = learningAlgorithm.updateDirection(oldState, snake.dir, snake.body.length);
     snake.dir = newDir;
     let reward = moveSnake();
 
-    let newState = curState();
+    for (let i = 0; i < otherSnakes.length; ++i) {
+      let otherSnakeState = curState(otherSnakes[i]);
+      otherSnakes[i].dir = learningAlgorithm.updateDirection(otherSnakeState, otherSnakes[i].dir, otherSnakes[i].body.length);
+      if (moveOtherSnake(otherSnakes[i]) == 'rem') {
+        i--;
+      }
+    }
+
+    let newState = curState(snake);
     learningAlgorithm.updateQTable(oldState, newDir, reward, newState, snake.body.length);
+
+    renewOtherSnakes();
   };
 
   var testLoop = () => {
-    let oldState = curState();
+    let oldState = curState(snake);
     snake.dir = learningAlgorithm.updateDirection(oldState, snake.dir, snake.body.length);
-    //QLearning.printActions(oldState);
-
     moveSnake();
 
+    for (let i = 0; i < otherSnakes.length; ++i) {
+      let otherSnakeState = curState(otherSnakes[i]);
+      otherSnakes[i].dir = learningAlgorithm.updateDirection(otherSnakeState, otherSnakes[i].dir, otherSnakes[i].body.length);
+      if (moveOtherSnake(otherSnakes[i]) == 'rem') {
+        i--;
+      }
+    }
+    //QLearning.printActions(oldState);
+
     render();
+
+    renewOtherSnakes();
   };
 
   // Make public methods accessible to QLearning
@@ -348,14 +529,15 @@ var Game = (() => {
     reset: reset,
     trainLoop: trainLoop,
     testLoop: testLoop,
+    resetTest: resetTest,
 
     getHeadPos: getHeadPos,
-    getApplePos: getApplePos,
-    getTailPos: getTailPos,
+    getNearestApplePos: getNearestApplePos,
+    // getTailPos: getTailPos,
     // getTailDir: getTailDir,
     getDistForward: getDistForward,
-    getDistRight: getDistForward,
-    getDistLeft: getDistLeft,
+    // getDistRight: getDistRight,
+    // getDistLeft: getDistLeft,
     getDir: getDir,
 
     getScore: getScore,
