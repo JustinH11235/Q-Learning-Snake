@@ -549,11 +549,6 @@ var Game = (() => {
     includeRightDistToWall = rdtwp;
     includeLeftDistToWall = ldtwp;
     includeDirection = drctnp;
-    // console.log(numPartsMain);
-    // console.log(numPartsOther);
-    // console.log(includeRelativeApplePos);
-    // console.log(includeForwardDistToWall);
-    // console.log(includeDirection);
   };
 
   var trainLoop = () => {
@@ -608,10 +603,10 @@ var Game = (() => {
     getNearestApplePos: getNearestApplePos,
     // getTailPos: getTailPos,
     // getTailDir: getTailDir,
-    getDistForward: getDistForward,
+    // getDistForward: getDistForward,
     // getDistRight: getDistRight,
     // getDistLeft: getDistLeft,
-    getDir: getDir,
+    // getDir: getDir,
 
     getScore: getScore,
     getHighscore: getHighscore,
