@@ -32,6 +32,8 @@ var Game = (() => {
   var numPartsOther;
   var includeRelativeApplePos;
   var includeForwardDistToWall;
+  var includeRightDistToWall;
+  var includeLeftDistToWall;
   var includeDirection;
 
   var reset = () => {
@@ -370,6 +372,12 @@ var Game = (() => {
     if (includeForwardDistToWall) {
       state += ',' + getDistForward(snakey);
     }
+    if (includeRightDistToWall) {
+      state += ',' + getDistRight(snakey);
+    }
+    if (includeLeftDistToWall) {
+      state += ',' + getDistLeft(snakey);
+    }
     if (includeDirection) {
       state += ',' + snakey.dir;
     }
@@ -418,39 +426,39 @@ var Game = (() => {
     }
   }
 
-  // var getDistRight = () => {
-  //   let headx = snake.body[snake.body.length - 1].x;
-  //   let heady = snake.body[snake.body.length - 1].y;
-  //   switch (snake.dir) {
-  //     case 'right':
-  //       return height - heady;
-  //     case 'left':
-  //       return heady;
-  //     case 'down':
-  //       return headx;
-  //     case 'up':
-  //       return width - headx;
-  //     default:
-  //       return;
-  //   }
-  // }
-  //
-  // var getDistLeft = () => {
-  //   let headx = snake.body[snake.body.length - 1].x;
-  //   let heady = snake.body[snake.body.length - 1].y;
-  //   switch (snake.dir) {
-  //     case 'right':
-  //       return heady;
-  //     case 'left':
-  //       return height - heady;
-  //     case 'down':
-  //       return width - headx;
-  //     case 'up':
-  //       return headx;
-  //     default:
-  //       return;
-  //   }
-  // }
+  var getDistRight = (snakey) => {
+    let headx = snakey.body[snakey.body.length - 1].x;
+    let heady = snakey.body[snakey.body.length - 1].y;
+    switch (snakey.dir) {
+      case 'right':
+        return height - heady;
+      case 'left':
+        return heady;
+      case 'down':
+        return headx;
+      case 'up':
+        return width - headx;
+      default:
+        return;
+    }
+  }
+
+  var getDistLeft = (snakey) => {
+    let headx = snakey.body[snakey.body.length - 1].x;
+    let heady = snakey.body[snakey.body.length - 1].y;
+    switch (snakey.dir) {
+      case 'right':
+        return heady;
+      case 'left':
+        return height - heady;
+      case 'down':
+        return width - headx;
+      case 'up':
+        return headx;
+      default:
+        return;
+    }
+  }
 
   var getDir = (snakey) => {
     return snakey.dir;
@@ -489,7 +497,15 @@ var Game = (() => {
           'Height': height,
           'Other Snakes': numOtherSnakes,
           'Apples': numApples
-        }, 'All Body Parts': allParts
+        }, 'State Options': {
+          'Main Snake Body': UI.getIncludeMainSnakeBody(),
+          'Other Snakes Body': UI.getIncludeOtherSnakesBody(),
+          'Relative Apple Position': UI.getIncludeRelApplePos(),
+          'Forward Distance to Wall': UI.getIncludeDistForward(),
+          'Rightward Distance to Wall': UI.getIncludeDistRight(),
+          'Leftward Distance to Wall': UI.getIncludeDistLeft(),
+          'Direction': UI.getIncludeDirection()
+        }
       },
       'REPORT': {
         'Highscore': getHighscore(),
@@ -500,7 +516,7 @@ var Game = (() => {
     };
   };
 
-  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, snakssp, applssp, iterationsp, r1p, r2p, r3p, r4p, npmp, npop, rapp, fdtwp, drctnp) => {
+  var init = (learningAlgorithmp, snakeSizep, widthp, heightp, snakssp, applssp, iterationsp, r1p, r2p, r3p, r4p, npmp, npop, rapp, fdtwp, rdtwp, ldtwp, drctnp) => {
     console.log('Game init');
     learningAlgorithm = learningAlgorithmp;
     snakeSize = snakeSizep;
@@ -530,6 +546,8 @@ var Game = (() => {
     numPartsOther = npop;
     includeRelativeApplePos = rapp;
     includeForwardDistToWall = fdtwp;
+    includeRightDistToWall = rdtwp;
+    includeLeftDistToWall = ldtwp;
     includeDirection = drctnp;
     // console.log(numPartsMain);
     // console.log(numPartsOther);

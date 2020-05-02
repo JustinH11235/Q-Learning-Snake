@@ -63,6 +63,8 @@ var UI = (() => {
 
   const rap = document.getElementById('rap');
   const fdtw = document.getElementById('fdtw');
+  const rdtw = document.getElementById('rdtw');
+  const ldtw = document.getElementById('ldtw');
   const drctn = document.getElementById('drctn');
 
   var testPaused = false;
@@ -99,8 +101,10 @@ var UI = (() => {
       npo = nbpOther.checked ? 0 : (ortpOther.checked ? 1 : 2);
       irap = rap.checked;
       ifdtw = fdtw.checked;
+      irdtw = rdtw.checked;
+      ildtw = ldtw.checked;
       idrctn = drctn.checked;
-      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, npm, npo, irap, ifdtw, idrctn);
+      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, npm, npo, irap, ifdtw, irdtw, ildtw, idrctn);
       learningAlgorithm.init({}, learningRate, discountFactor, epsilon);
       setTimeout(trainLoop, 5)
     } else {
@@ -134,13 +138,17 @@ var UI = (() => {
       nbpOther.checked = true;
       rap.checked = true;
       fdtw.checked = true;
+      rdtw.checked = false;
+      ldtw.checked = false;
       drctn.checked = true;
       npm = nbpMain.checked ? 0 : (ortpMain.checked ? 1 : 2);
       npo = nbpOther.checked ? 0 : (ortpOther.checked ? 1 : 2);
       irap = rap.checked;
       ifdtw = fdtw.checked;
+      irdtw = rdtw.checked;
+      ildtw = ldtw.checked;
       idrctn = drctn.checked;
-      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, npm, npo, irap, ifdtw, idrctn);
+      Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, npm, npo, irap, ifdtw, irdtw, ildtw, idrctn);
       addScript('./preloaded-q-table.json', () => {
         learningAlgorithm.init(preloadedQTable, learningRate, discountFactor, epsilon);
         train.innerHTML  = 'Trained';
@@ -161,7 +169,7 @@ var UI = (() => {
     hscore.style.visibility = 'visible';
     ratio.style.visibility = 'visible';
     deaths.style.visibility = 'visible';
-    Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, npm, npo, irap, ifdtw, idrctn);
+    Game.init(QLearning, snakeSize, width, height, othersnaks, appls, iterations, r1, r2, r3, r4, npm, npo, irap, ifdtw, irdtw, ildtw, idrctn);
     learningAlgorithm.changeLR(9999);
     learningAlgorithm.changeDF(9999);
     learningAlgorithm.changeEpsilon(9999);
@@ -274,12 +282,47 @@ var UI = (() => {
     return numUnsticks;
   };
 
+  var getIncludeMainSnakeBody = () => {
+    return nbpMain.checked ? nbpMain.value : (ortpMain.checked ? ortpMain.value : arbpMain.value);
+  };
+
+  var getIncludeOtherSnakesBody = () => {
+    return nbpOther.checked ? nbpOther.value : (ortpOther.checked ? ortpOther.value : arbpOther.value);
+  };
+
+  var getIncludeRelApplePos = () => {
+    return rap.checked;
+  };
+
+  var getIncludeDistForward = () => {
+    return fdtw.checked;
+  };
+
+  var getIncludeDistRight = () => {
+    return rdtw.checked;
+  };
+
+  var getIncludeDistLeft = () => {
+    return ldtw.checked;
+  };
+
+  var getIncludeDirection = () => {
+    return drctn.checked;
+  };
+
   // Make public methods accessible to QLearning
   return {
     getInitialLearningRate: getInitialLearningRate,
     getInitialDiscountFactor: getInitialDiscountFactor,
     getInitialEpsilon: getInitialEpsilon,
-    getNumUnsticks: getNumUnsticks
+    getNumUnsticks: getNumUnsticks,
+    getIncludeMainSnakeBody: getIncludeMainSnakeBody,
+    getIncludeOtherSnakesBody: getIncludeOtherSnakesBody,
+    getIncludeRelApplePos: getIncludeRelApplePos,
+    getIncludeDistForward: getIncludeDistForward,
+    getIncludeDistRight: getIncludeDistRight,
+    getIncludeDistLeft: getIncludeDistLeft,
+    getIncludeDirection: getIncludeDirection
   };
 
 

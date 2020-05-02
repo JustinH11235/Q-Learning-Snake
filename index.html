@@ -50,20 +50,20 @@
     <br><h4>State Options:</h4>
     <form>
       <p>Main Snake Body: </p>
-      <input type="radio" id="nbpMain" name="Main" value="nbpMain">
+      <input type="radio" id="nbpMain" name="Main" value="None">
       <label for="nbpMain">No Body Parts</label><br>
-      <input type="radio" id="ortpMain" name="Main" value="ortpMain" checked>
+      <input type="radio" id="ortpMain" name="Main" value="Only Tail" checked>
       <label for="ortpMain">Only Relative Tail Position</label><br>
-      <input type="radio" id="arbpMain" name="Main" value="arbpMain">
+      <input type="radio" id="arbpMain" name="Main" value="All">
       <label for="arbpMain">All Relative Body Positions</label><br>
     </form>
     <form>
       <p>Other Snakes Body: </p>
-      <input type="radio" id="nbpOther" name="Other" value="nbpOther" checked>
+      <input type="radio" id="nbpOther" name="Other" value="None" checked>
       <label for="nbpOther">No Body Parts</label><br>
-      <input type="radio" id="ortpOther" name="Other" value="ortpOther">
+      <input type="radio" id="ortpOther" name="Other" value="Only Tail">
       <label for="ortpOther">Only Relative Tail Position</label><br>
-      <input type="radio" id="arbpOther" name="Other" value="arbpOther">
+      <input type="radio" id="arbpOther" name="Other" value="All">
       <label for="arbpOther">All Relative Body Positions</label><br>
     </form>
     <form>
@@ -71,6 +71,10 @@
       <label for="rap">Relative Apple Position</label><br>
       <input type="checkbox" id="fdtw" name="fdtw" value="fdtw" checked>
       <label for="fdtw">Forward Distance to Wall</label><br>
+      <input type="checkbox" id="rdtw" name="rdtw" value="rdtw">
+      <label for="rdtw">Rightward Distance to Wall</label><br>
+      <input type="checkbox" id="ldtw" name="ldtw" value="ldtw">
+      <label for="ldtw">Leftward Distance to Wall</label><br>
       <input type="checkbox" id="drctn" name="drctn" value="drctn" checked>
       <label for="drctn">Direction</label><br><br>
     </form>
