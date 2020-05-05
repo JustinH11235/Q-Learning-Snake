@@ -83,7 +83,7 @@ var UI = (() => {
 
   train.addEventListener("click", () => {
     if (trainType.value == 'custom') {
-      train.innerHTML = 'Training...';
+      train.innerHTML = 'Trained 0%';
       train.disabled = true;
       iterations = parseInt(iters.value.split(',').join(''));
       r1 = parseFloat(rewardWall.value);
@@ -108,7 +108,7 @@ var UI = (() => {
       learningAlgorithm.init({}, learningRate, discountFactor, epsilon);
       setTimeout(trainLoop, 5)
     } else {
-      train.innerHTML = 'Training...';
+      train.innerHTML = 'Trained 0%';
       train.disabled = true;
       iters.value = '50,000,000';
       iterations = parseInt(iters.value.split(',').join(''));
@@ -204,7 +204,7 @@ var UI = (() => {
   });
 
   function downloadObject(obj, filename) {
-    var blob = new Blob([JSON.stringify(obj, null, 2)], {type: "application/json;charset=utf-8"}).slice(2,-1);
+    var blob = new Blob(['{\n' + JSON.stringify(obj, null, 2) + '\n}'], {type: "application/json;charset=utf-8"}).slice(2,-1);
     var url = URL.createObjectURL(blob);
     var elem = document.createElement("a");
     elem.href = url;
@@ -232,18 +232,35 @@ var UI = (() => {
   }
 
   function trainLoop() {
-    for (let i = 0; i < iterations; ++i) {
-      Game.trainLoop();
-      QLearning.changeLR(.85 / iterations);
-      QLearning.changeDF(.9 / iterations);
-      QLearning.changeEpsilon(.5 / iterations);
+    train.innerHTML = 'Trained 0%'
+    var numCheckpoints = 5;
+    var timesLooped = 0;
+
+    function finishTrain() {
+      test.disabled = false;
+      fpsBtn.disabled = false;
+      unstick.disabled = false;
+      resetTest.disabled = false;
+      qTableDownloadBtn.disabled = false;
     }
-    train.innerHTML  = 'Trained';
-    test.disabled = false;
-    fpsBtn.disabled = false;
-    unstick.disabled = false;
-    resetTest.disabled = false;
-    qTableDownloadBtn.disabled = false;
+
+    function microTrain() {
+      for (let j = 0; j < iterations / numCheckpoints; ++j) {
+        Game.trainLoop();
+        QLearning.changeLR(learningRate / iterations);
+        QLearning.changeDF(discountFactor / iterations);
+        QLearning.changeEpsilon(epsilon / iterations);
+      }
+      train.innerHTML  = 'Trained ' + 100 / numCheckpoints * (timesLooped + 1) + '%';
+      timesLooped++;
+      if (timesLooped < numCheckpoints) {
+        setTimeout(microTrain, 1000);
+      } else {
+        setTimeout(finishTrain, 1000);
+      }
+    }
+
+    microTrain();
   }
 
   function testLoop() {
