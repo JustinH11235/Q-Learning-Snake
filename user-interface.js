@@ -245,7 +245,7 @@ var UI = (() => {
       }
       train.innerHTML  = 'Trained ' + 100 / numCheckpoints * (++timesLooped) + '%';
       if (timesLooped < numCheckpoints) {
-        setTimeout(microTrain, 1);
+        setTimeout(microTrain, 5);
       } else {
         test.disabled = false;
         fpsBtn.disabled = false;
@@ -255,7 +255,7 @@ var UI = (() => {
       }
     }
 
-    microTrain();
+    setTimeout(microTrain, 5);
   }
 
   function testLoop() {
