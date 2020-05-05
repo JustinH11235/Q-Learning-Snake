@@ -236,14 +236,6 @@ var UI = (() => {
     var numCheckpoints = 5;
     var timesLooped = 0;
 
-    function finishTrain() {
-      test.disabled = false;
-      fpsBtn.disabled = false;
-      unstick.disabled = false;
-      resetTest.disabled = false;
-      qTableDownloadBtn.disabled = false;
-    }
-
     function microTrain() {
       for (let j = 0; j < iterations / numCheckpoints; ++j) {
         Game.trainLoop();
@@ -251,12 +243,15 @@ var UI = (() => {
         QLearning.changeDF(discountFactor / iterations);
         QLearning.changeEpsilon(epsilon / iterations);
       }
-      train.innerHTML  = 'Trained ' + 100 / numCheckpoints * (timesLooped + 1) + '%';
-      timesLooped++;
+      train.innerHTML  = 'Trained ' + 100 / numCheckpoints * (++timesLooped) + '%';
       if (timesLooped < numCheckpoints) {
-        setTimeout(microTrain, 1000);
+        setTimeout(microTrain, 1);
       } else {
-        setTimeout(finishTrain, 1000);
+        test.disabled = false;
+        fpsBtn.disabled = false;
+        unstick.disabled = false;
+        resetTest.disabled = false;
+        qTableDownloadBtn.disabled = false;
       }
     }
 
