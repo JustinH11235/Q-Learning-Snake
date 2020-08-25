@@ -44,9 +44,6 @@ var Game = (() => {
     renewApples();
     score = 0;
     deaths++;
-    // QLearning.changeLR(.85 / iterations);
-    // QLearning.changeDF(.9 / iterations);
-    // QLearning.changeEpsilon(.5 / iterations);
   };
 
   var resetTest = () => {
@@ -175,13 +172,12 @@ var Game = (() => {
 
   function newSnake() {
     return {
-      body: [emptyPos()],//PROBLEM?
+      body: [emptyPos()],
       dir: 'right'
     }
   }
 
   function moveSnake() {
-    //console.log('SNAKE MOVE');
     switch (snake.dir) {
       case 'right':
         snake.body.push(pos(snake.body[snake.body.length - 1].x + 1, snake.body[snake.body.length - 1].y));
@@ -202,14 +198,12 @@ var Game = (() => {
     let headY = snake.body[snake.body.length - 1].y;
     // Check if hit wall
     if (headX < 0 || headX >= width || headY < 0 || headY >= height) {
-      //console.log('Hit wall');
       reset();
       return reward1;
     }
     // Check if hit itself
     for (let i = 0; i < snake.body.length - 1; ++i) {
       if (headX == snake.body[i].x && headY == snake.body[i].y) {
-        //console.log('Hit itself');
         reset();
         return reward2;
       }
@@ -218,7 +212,6 @@ var Game = (() => {
     for (let i = 0; i < otherSnakes.length; ++i) {
       for (let j = 0; j < otherSnakes[i].body.length; ++j) {
         if (headX == otherSnakes[i].body[j].x && headY == otherSnakes[i].body[j].y) {
-          //console.log('hit other snake');
           reset();
           return reward2;
         }
@@ -236,18 +229,15 @@ var Game = (() => {
         apples.splice(posIndexOf(apples, snake.body[snake.body.length - 1]), 1);
         applesEaten++;
         renewApples();
-        //console.log('ate apple');
         return reward3;
       }
     }
-    //console.log('nothing happened');
     snake.body.shift();
     return reward4;
 
   }
 
   function moveOtherSnake(thisSnake) {
-    //console.log('OTHER SNAKE MOVE');
     switch (thisSnake.dir) {
       case 'right':
         thisSnake.body.push(pos(thisSnake.body[thisSnake.body.length - 1].x + 1, thisSnake.body[thisSnake.body.length - 1].y));
@@ -269,14 +259,12 @@ var Game = (() => {
     // Check if hit wall
     if (headX < 0 || headX >= width || headY < 0 || headY >= height) {
       otherSnakes.splice(snakeIndexOf(otherSnakes, thisSnake), 1);
-      //console.log('hit wall');
       return 'rem';
     }
     // Check if hit itself
     for (let i = 0; i < thisSnake.body.length - 1; ++i) {
       if (headX == thisSnake.body[i].x && headY == thisSnake.body[i].y) {
         otherSnakes.splice(snakeIndexOf(otherSnakes, thisSnake), 1);
-        //console.log('hit itself');
         return 'rem';
       }
     }
@@ -286,7 +274,6 @@ var Game = (() => {
       for (let j = 0; j < otherSnakes[i].body.length; ++j) {
         if (otherSnakes[i] != thisSnake && headX == otherSnakes[i].body[j].x && headY == otherSnakes[i].body[j].y) {
           otherSnakes.splice(snakeIndexOf(otherSnakes, thisSnake), 1);
-          //console.log('hit other snake');
           return 'rem';
         }
       }
@@ -296,7 +283,6 @@ var Game = (() => {
     for (let i = 0; i < snake.body.length; ++i) {
       if (headX == snake.body[i].x && headY == snake.body[i].y) {
         otherSnakes.splice(snakeIndexOf(otherSnakes, thisSnake), 1);
-        //console.log('hit main snake');
         return 'rem';
       }
     }
@@ -307,13 +293,10 @@ var Game = (() => {
     for (let i = 0; i < apples.length; ++i) {
       if (apples[i].x == headX && apples[i].y == headY) {
         apples.splice(posIndexOf(apples, thisSnake.body[thisSnake.body.length - 1]), 1);
-        //posSplice(apples, );
         renewApples();
-        //console.log('ate apple');
         return;
       }
     }
-    //console.log('nothing happened');
     thisSnake.body.shift();
     return;
 
@@ -584,7 +567,6 @@ var Game = (() => {
         i--;
       }
     }
-    //QLearning.printActions(oldState);
 
     render();
 
@@ -601,12 +583,6 @@ var Game = (() => {
 
     getHeadPos: getHeadPos,
     getNearestApplePos: getNearestApplePos,
-    // getTailPos: getTailPos,
-    // getTailDir: getTailDir,
-    // getDistForward: getDistForward,
-    // getDistRight: getDistRight,
-    // getDistLeft: getDistLeft,
-    // getDir: getDir,
 
     getScore: getScore,
     getHighscore: getHighscore,

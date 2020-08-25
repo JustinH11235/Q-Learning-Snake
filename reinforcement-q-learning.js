@@ -26,23 +26,15 @@ var QLearning = (() => {
     }
   }
 
-  // function newState(apple, tail, forward, dir) {
-  //   return apple.x + ',' + apple.y + ',' + tail.x + ',' + tail.y + ',' + forward + ',' + dir;
-  //   //return JSON.parse(JSON.stringify({apple: apple, tail: tail, dforward: dforward}));
-  // }
-
   function bestAction(state) {
     var actions = Object.entries(QTable[state]);
     var bestActions = [actions[0][0]];
     var bestRewards = [actions[0][1]];
     for (let [action, reward] of actions) {
-      //console.log('action: ' + action + ' reward: ' + reward);
       if (reward > bestRewards[0]) {
-        //console.log('===========NEW============= ' + reward + ' ' + bestRewards[0] + ' =============');
         bestRewards = [reward];
         bestActions = [action];
       } else if (reward == bestRewards[0]) {
-        //console.log('============EQUAL============ ' + reward + ' ' + bestRewards[0] + ' =============');
         bestRewards.push(reward);
         bestActions.push(action);
       }
@@ -50,12 +42,10 @@ var QLearning = (() => {
     var rando = randInt(0, bestRewards.length);
     var bestAction = bestActions[rando];
     var bestReward = bestRewards[rando];
-    //console.log('BEST ACTION: ' + bestAction);
     return JSON.parse(JSON.stringify({action: bestAction, reward: bestReward}));
   }
 
   var init = (qtab, lR, dF, e) => {
-    //console.log('QLearning init');
     QTable = qtab;
     learningRate = lR;
     discountFactor = dF;
@@ -67,7 +57,6 @@ var QLearning = (() => {
     if (learningRate < 0) {
       learningRate = 0;
     }
-    //console.log('LR: ' + learningRate);
   }
 
   var changeDF = (change) => {
@@ -75,7 +64,6 @@ var QLearning = (() => {
     if (discountFactor < 0) {
       discountFactor = 0;
     }
-    //console.log('DF: ' + discountFactor);
   }
 
   var changeEpsilon = (change) => {
@@ -83,13 +71,10 @@ var QLearning = (() => {
     if (epsilon < 0) {
       epsilon = 0;
     }
-    //console.log('EPSILON: ' + epsilon);
   }
 
   var updateQTable = (oldState, action, reward, newState, sizeee) => {
-    //console.log('QLearning updateQTable');
     if (QTable[newState] == undefined) {
-      //console.log('new state was undefined');
       if (sizeee > 1) {
         switch (action) {
           case 'right':
@@ -114,7 +99,6 @@ var QLearning = (() => {
 
     var q1 = QTable[newState];
     QTable[oldState][action] = QTable[oldState][action] + learningRate * (reward + discountFactor * bestAction(newState).reward  - QTable[oldState][action]);
-    //QTable[oldState][action] = QTable[oldState][action] + learningRate * (reward + discountFactor * bestAction(newState).reward  - QTable[oldState][action]);
   };
 
   var updateDirection = (statep, oldDir, sizee) => {
@@ -142,7 +126,6 @@ var QLearning = (() => {
     }
 
     if (Math.random() < epsilon) {
-      //console.log('EPSILON TRIGGERED==============================' + epsilon);
       let posActions;
       if (sizee > 1) {
         switch (oldDir) {
@@ -180,8 +163,28 @@ var QLearning = (() => {
     console.log();
   };
 
+  var printQTableRaw = () => {
+    console.log(QTable);
+  };
+
   var getQTable = () => {
     return QTable;
+  };
+
+  var getQTableSmallDecimals = () => {
+    let qtab = {};
+
+    for (let stat in QTable) {
+      let newAct = {};
+
+      for (let dirr in QTable[stat]) {
+        newAct[dirr] = parseFloat(QTable[stat][dirr].toFixed(5));
+      }
+
+      qtab[stat] = newAct;
+    }
+
+    return qtab;
   };
 
   var printActions = (statep) => {
@@ -199,6 +202,7 @@ var QLearning = (() => {
 
     printQTable: printQTable,
     getQTable: getQTable,
+    getQTableSmallDecimals: getQTableSmallDecimals,
 
     printActions: printActions
   }

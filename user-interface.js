@@ -73,12 +73,12 @@ var UI = (() => {
 
   qTableDownloadBtn.addEventListener("click", () => {
     var downloadName = qTableDownload.value ? qTableDownload.value : 'snakeQTable';
-    downloadObject(QLearning.getQTable(), 'QTable ' + downloadName + qTableExt.value);
+    downloadQTable(QLearning.getQTableSmallDecimals(), 'QTable ' + downloadName + qTableExt.value);
   });
 
   testReportDownloadBtn.addEventListener("click", () => {
     var downloadName = testReportDownload.value ? testReportDownload.value : 'snakeTestReport';
-    downloadObject(Game.getReport(), 'Report ' + downloadName + testReportExt.value);
+    downloadTestReport(Game.getReport(), 'Report ' + downloadName + testReportExt.value);
   });
 
   train.addEventListener("click", () => {
@@ -203,8 +203,38 @@ var UI = (() => {
     numUnsticks = 0;
   });
 
-  function downloadObject(obj, filename) {
-    var blob = new Blob(['{\n' + JSON.stringify(obj, null, 2) + '\n}'], {type: "application/json;charset=utf-8"}).slice(2,-1);
+  function myStringify(myObj) {
+    var final = '';
+    var firstIter = true;
+    for (let prop in myObj) {
+      final += JSON.stringify(prop) + ':';
+      final += JSON.stringify(myObj[prop]);
+      break;
+    }
+    for (let prop in myObj) {
+      if (!firstIter) {
+        final += ',' + JSON.stringify(prop) + ':';
+        final += JSON.stringify(myObj[prop]);
+      }
+      firstIter = false;
+    }
+
+    return final;
+  }
+
+  function downloadQTable(obj, filename) {
+    var blob = new Blob(['{{' + JSON.stringify(obj) + '}'], {type: "application/json;charset=utf-8"}).slice(2,-1);
+    var url = URL.createObjectURL(blob);
+    var elem = document.createElement("a");
+    elem.href = url;
+    elem.download = filename;
+    document.body.appendChild(elem);
+    elem.click();
+    document.body.removeChild(elem);
+  }
+
+  function downloadTestReport(obj, filename) {
+    var blob = new Blob(['{{' + JSON.stringify(obj, null, 2) + '}'], {type: "application/json;charset=utf-8"}).slice(2,-1);
     var url = URL.createObjectURL(blob);
     var elem = document.createElement("a");
     elem.href = url;
@@ -336,10 +366,5 @@ var UI = (() => {
     getIncludeDistLeft: getIncludeDistLeft,
     getIncludeDirection: getIncludeDirection
   };
-
-
-
-
-
 
 })();
